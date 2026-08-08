@@ -9,7 +9,7 @@ description: Use when initializing or repairing a document-driven workspace cont
 
 Replicate only the operating model. Treat the reference workspace as a source of governance patterns, never as the target's product truth.
 
-Store repository skills only in Codex's discovered `.agents/skills/` tree. Never create a parallel root `skills/` directory; copy only the methods the target control plane actually uses.
+Store repository skills in Codex's discovered `.agents/skills/` tree and copy only the methods the target control plane actually uses.
 
 Keep the agent control plane and human task surface distinct. Replicate a root README and `/人类-文档/` only when the target has at least one verified human task or source entry; link target-owned facts instead of copying reference content.
 
@@ -74,7 +74,6 @@ The root README is the shortest human navigation, `/人类-文档/README.md` is 
 
 - Do not modify, stage, commit or push the reference workspace as part of replication.
 - Never invent `apps/`, `services/`, `packages/`, `src/`, framework files, lock files, APIs, data models, source roots or a literal root `项目/` source folder.
-- Never place repository skills in a root `skills/` directory; `.agents/skills/` is their sole target location.
 - Never copy reference product contracts, service names, credentials, connection strings, logs, customer data or generated artifacts.
 - Do not retain initialization reports, formal-document README indexes, completed plans or duplicate directory maps. A grounded root README and `/人类-文档/README.md` are the explicit human-entry exception.
 - Stop when a path cannot be proven to resolve under the target root, the reference baseline changes unexpectedly, a document owner is ambiguous, an active task depends on content proposed for deletion, or migration would change product/source behavior without authorization.
