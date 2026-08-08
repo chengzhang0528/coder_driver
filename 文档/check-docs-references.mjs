@@ -17,7 +17,7 @@ export function resolveDocumentReference({ root, docsRoot, source, raw, exists =
   value = value.replaceAll("\\", "/");
   if (value.startsWith("/人类-文档/")) value = value.slice(1);
 
-  if (/^(?:文档|人类-文档|skills)\//.test(value)) {
+  if (/^(?:文档|人类-文档|\.agents\/skills)\//.test(value)) {
     return path.resolve(root, ...value.split("/"));
   }
   if (/^(?:项目|工作空间|工作流)\//.test(value)) {

@@ -44,13 +44,13 @@ Other unstaged files may remain in the worktree. Any pre-existing staged file is
 Use the repository Node runtime and provide concise, meaningful evidence rather than the word `passed` alone:
 
 ```powershell
-node skills/git-closeout/scripts/run-git-closeout.mjs `
+node .agents/skills/git-closeout/scripts/run-git-closeout.mjs `
   --mode commit-push `
   --repo . `
   --message "chore: add verified git closeout" `
   --verification "node --test ...; npm run check:docs; git diff --check -- <owned paths>" `
   --path AGENTS.md `
-  --path skills/git-closeout/SKILL.md
+  --path .agents/skills/git-closeout/SKILL.md
 ```
 
 The default target is `origin/main`, and the current checkout must be the primary checkout of `main`. Only when the current user explicitly requests another already-existing branch may `--branch <name>` be passed. Only when the current user explicitly requests an already-existing linked worktree may `--allow-linked-worktree` be passed. The runner never creates a branch or worktree.

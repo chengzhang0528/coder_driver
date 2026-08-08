@@ -13,10 +13,12 @@ async function createFixture(t) {
   const projectRoot = path.join(docsRoot, "项目", "项目_demo");
   const source = path.join(projectRoot, "AGENTS.md");
   await mkdir(path.join(root, "app", "src"), { recursive: true });
+  await mkdir(path.join(root, ".agents", "skills", "example"), { recursive: true });
   await mkdir(path.join(projectRoot, "技术设计"), { recursive: true });
   await mkdir(path.join(docsRoot, "工作流"), { recursive: true });
   await writeFile(source, "# demo\n", "utf8");
   await writeFile(path.join(root, "app", "src", "main.ts"), "export {};\n", "utf8");
+  await writeFile(path.join(root, ".agents", "skills", "example", "SKILL.md"), "# example\n", "utf8");
   await writeFile(path.join(projectRoot, "技术设计", "DOC-0001.md"), "# design\n", "utf8");
   await writeFile(path.join(docsRoot, "工作流", "WF-0001.md"), "# workflow\n", "utf8");
   return { root, docsRoot, source, projectRoot };
@@ -47,5 +49,9 @@ test("resolves governed document roots without product-specific names", async (t
   assert.equal(
     resolveDocumentReference({ ...fixture, raw: "文档/TASK_CONTROL.md" }),
     path.join(fixture.docsRoot, "TASK_CONTROL.md"),
+  );
+  assert.equal(
+    resolveDocumentReference({ ...fixture, raw: ".agents/skills/example/SKILL.md" }),
+    path.join(fixture.root, ".agents", "skills", "example", "SKILL.md"),
   );
 });

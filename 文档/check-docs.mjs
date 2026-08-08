@@ -19,7 +19,6 @@ const structurePath = path.join(docsRoot, "WORKSPACE_STRUCTURE.md");
 const ignored = new Set([
   ".git",
   ".reports",
-  ".agents",
   ".codex-build",
   ".venv",
   ".explore-output",
@@ -502,7 +501,7 @@ for (const file of formal) {
 for (const file of files.filter((item) => /\/skills\/[^/]+\/SKILL\.md$/.test(`/${relative(item)}`))) {
   budgets.set(relative(file), 120);
 }
-for (const file of files.filter((item) => relative(item).startsWith("skills/") && /\.mdx?$/i.test(item))) {
+for (const file of files.filter((item) => relative(item).startsWith(".agents/skills/") && /\.mdx?$/i.test(item))) {
   const label = relative(file);
   if (!budgets.has(label)) budgets.set(label, 180);
 }
@@ -519,7 +518,7 @@ for (const file of files.filter((item) => {
     || label === "README.md"
     || label.startsWith("人类-文档/")
     || label.startsWith("文档/")
-    || label.startsWith("skills/");
+    || label.startsWith(".agents/skills/");
 })) {
   const text = texts.get(file);
   if (/[A-Za-z]:[\\/][^\s`]+/.test(text)) {
