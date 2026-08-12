@@ -75,7 +75,18 @@ Apply only the stages relevant to the client variant:
 - For Development, run affected source/type checks and focused tests. Include positive and nearby negative cases for version calculation, staging, active-work waiting, cancellation, activation failure, health failure, and rollback.
 - Run SystemTest only when independently requested, against a fixed candidate and environment, without changing the product under test. Run Deployment only when explicitly authorized through the project's controlled plan and Runbook.
 
-## 5. Report And Stop
+## 5. Release Candidate Black-Box Acceptance
+
+For desktop clients, build and source checks are not the release completion gate. After the target Release is public, validate the exact published asset as a user would:
+
+- Download the installer from that Release, then verify API-reported size, SHA-256, platform, architecture, and signing/provenance status.
+- Install or upgrade using the downloaded installer and launch the installed binary, never the worktree or a debug build.
+- Assert the startup view, main navigation, key user-visible controls, and the absence of a blank, error, or partially rendered page.
+- Assert every user-visible capability changed by the release, such as a manual `检查更新` entry and its checking/result states.
+- Record installed version, process/window health, install registration, and bundled runtime/component versions.
+- Treat worktree or debug UI checks as supplementary evidence; they cannot replace Release installation acceptance.
+
+## 6. Report And Stop
 
 Report the resolved version and calculation, artifact/platform evidence, manifest and digest, current/staged/activated/previous state, remaining user action, exact verified environment, unsupported cases (recommend an Issue), and Development/SystemTest/Deployment/Git results separately.
 
