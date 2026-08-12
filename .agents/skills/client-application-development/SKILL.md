@@ -5,94 +5,103 @@ description: Standardize client application development, installation, release, 
 
 # Client Application Development
 
-Use one lifecycle method across client types while preserving each project's framework and distribution contract. Tauri, Electron, Wails, native apps, stores, package managers, and web/CDN delivery are adapters, not mandates.
+Use one lifecycle method across desktop, launcher, updater, native, mobile, web, store, package-manager, and CDN clients while preserving each project's framework and distribution contract. Frameworks are adapters, not mandates.
 
-Keep product facts in the project's ProductContract, Decision, CurrentDesign, source, tests, and Runbook. This Skill stores only reusable method. Do not copy another project's language, cloud provider, installer format, or paths.
+Keep product facts in the project's ProductContract, Decision, CurrentDesign, source, tests, and Runbook. This Skill stores reusable method only. Do not copy another project's product names, cloud provider, object paths, installer format, or credentials.
 
 ## 1. Establish The Contract
 
-Before implementation, identify:
+Before implementation, identify the client variant, supported OS/device/browser and architectures, distribution target, canonical version source, installer/package boundary, update owner, component owners, user confirmation boundary, active-work drain rule, signing/provenance requirement, and this request's execution type. Resolve each fact from the project's formal owner and code evidence. If owners conflict, repair the single fact owner before expanding scope.
 
-- client variant, supported OS/device/browser and architectures;
-- distribution target and installer/store/package boundary;
-- canonical version source and every synchronized consumer;
-- update ownership: installer, launcher/updater, running client, or platform store;
-- user confirmation boundary for download, restart, session interruption, permissions, and activation;
-- this request's execution type: Development, explicitly requested SystemTest, or explicitly authorized Deployment.
+Never infer SystemTest or Deployment from build success, CI, a tag, a candidate, a release, or Git push. A feature plus its focused verification remains Development unless the user separately asks for an independent test or deployment result.
 
-Never infer SystemTest or Deployment from build success, CI, a tag, a candidate, or Git push. If formal sources conflict, repair the single fact owner before expanding scope.
+## 2. Choose The Delivery Shape
 
-## 2. Resolve Release Intent Like Here
+For a client with a large runtime, bundled CLI, browser engine, language runtime, model, SDK, or other replaceable payload, evaluate a thin-installer architecture before adding payloads to MSI/NSIS/AppImage/DMG:
 
-Make the normal release request human-friendly and deterministic:
+- **Thin installer**: installs a stable Launcher/Updater, product icon, shortcuts, uninstall/repair registration, and only the licenses/bootstrap data needed to start. It is a low-frequency bootstrap and normally changes only when launcher or installer behavior changes.
+- **Full installer**: carries the client and required payloads for one-shot or offline delivery. Choose it only when offline installation, store policy, one-file distribution, or a proven compatibility requirement outweighs the larger download.
+- **Hybrid**: keep a small fallback payload in the installer and fetch optional/replaceable components after install. Document exactly which assets are offline and which are network-dependent.
 
-1. Read the canonical current version.
-2. Infer the bump from explicit intent; default to the next patch for an unspecified release. Use minor/major only when project policy or clear intent supports it.
+Do not call a large self-contained package “thin”. Measure installer bytes separately from installed disk usage and first-run download. A thin installer reduces initial transfer and allows payload reuse; it does not remove the need to manage the final runtime footprint.
+
+When the project chooses thin delivery, load [thin-installer.md](references/thin-installer.md) before designing or coding. Adapt its contracts to the project; never copy its example provider, path, schema version, or names verbatim.
+
+## 3. Resolve Release Intent Like Here
+
+Make normal release requests human-friendly and deterministic:
+
+1. Read the canonical current version and immutable release metadata.
+2. Infer the bump from explicit intent; default to the next patch when unspecified. Use minor/major only when project policy or clear intent supports it.
 3. Synchronize verified version consumers and calculate the next version automatically.
-4. Build and verify an immutable candidate, then resolve the tag, manifest, metadata, and artifact names from that same version.
+4. Build and verify an immutable candidate; derive tag, manifest, metadata, and artifact names from that same version.
 5. Show the resolved version before irreversible publication.
 
-`发布` means “calculate and prepare the next release,” not “make me type a version.” `发布 v0.1.1` is an optional explicit constraint to validate for monotonicity and uniqueness; it is never the required convention. Do not overwrite an existing tag or immutable asset. Release intent is not Deployment authorization: named-target publication still needs the project's controlled Deployment workflow, target, admission evidence, authorization, and rollback.
+`发布` means calculate and prepare the next release, not require the user to type a version. `发布 vX.Y.Z` is an optional constraint: validate monotonicity, uniqueness, and policy; never overwrite an existing tag or immutable asset. Release intent is not Deployment authorization. Named-target publication still needs the project's controlled Deployment workflow, target, admission evidence, authorization, and rollback.
 
-## 3. Use The Common Lifecycle
+## 4. Common Lifecycle
 
 Apply only the stages relevant to the client variant:
 
-`discover -> build -> verify -> publish immutable assets -> check -> download -> verify -> stage -> drain active work -> confirm -> activate -> health check -> retain previous/rollback`
+`discover -> resolve release -> build -> verify -> publish immutable assets -> commit bootstrap/index last -> check -> probe/reuse -> download -> verify -> unpack/doctor -> stage -> drain active work -> confirm -> activate -> health check -> retain previous/rollback`
 
 ### Build and publish
 
-- Build a candidate for every supported platform/architecture.
-- Generate a manifest with release identity, platform, architecture, minimum compatible client/launcher version, artifact location, size, SHA-256, signature/provenance, and bundled component versions.
-- Verify before publication. Upload immutable assets first; update a pointer/index last. Use the existing GitHub Release, registry, store, or CDN rather than inventing a server.
-- Preserve third-party license and notice metadata.
+- Build supported platform/architecture candidates and keep installer, launcher, client, and third-party components independently attributable.
+- For split desktop clients, verify the packaging graph explicitly: every HTML entry is emitted, every native binary is built, the install-time bootstrap exists before bundling, and the final public bootstrap is generated only after the Installer digest is known. Require one clean-output build before first publication.
+- Generate a manifest containing release identity, platform, architecture, minimum compatible launcher/client, component version, source/object key, archive/installation rule, byte size, SHA-256, and signature/provenance.
+- Upload immutable assets first. Read every object back and verify size, digest, schema, and launcher compatibility. Update one mutable bootstrap/index pointer only after the complete closure is readable. A failed pre-commit publication must leave the old pointer usable.
+- Preserve third-party licenses and notices with the component that requires them.
+- Ordinary client releases must not rebuild a stable installer unless installer/launcher behavior or installer-owned assets changed. Reuse the already published installer reference.
+- Keep client and Installer versions in separate canonical files. Version automation for an ordinary client release must not rewrite the Installer version; resolve a reused Installer's public size/digest from its immutable published asset.
 
-### Installer and updater
+### Installer, launcher, and running client
 
-- Installer/package store: first install, prerequisites, repair, integration, uninstall, and platform policy. It is normally a one-time bootstrap.
-- Launcher/updater: routine app or bundled-runtime updates; use a helper because a running process cannot safely replace itself.
-- Keep system prerequisites separate from app-managed components and define their owner. Do not force MSI/NSIS or a desktop installer onto store, mobile, CLI, or web variants.
+- **Installer/store** owns first install, prerequisites, repair, upgrade, uninstall, platform integration, and shortcut policy. It must support repeat execution and in-place upgrade without requiring uninstall when the platform permits.
+- **Launcher/Updater** owns bootstrap/manifest reads, compatible release selection, component probing, download, integrity/signature verification, safe unpack, doctor/smoke, staging, activation, health check, rollback, and starting the client. It must use a fixed trusted root or platform source and reject arbitrary URLs.
+- **Running client/manager** owns user intent, visible state, active-work draining, and confirmation. It must not directly download, unpack, replace its own files, or hold release-write credentials. A helper is required to replace a running executable safely.
+- **System prerequisites** remain separate from app-managed components. Probe and reuse an eligible system component without copying, upgrading, editing, or changing global PATH; install a missing/insufficient prerequisite only through the owner defined by the product contract.
 
 ### Runtime update
 
-- Check on launch and periodically with bounded delay; add jitter when needed and honor an explicit opt-out.
-- Resolve the compatible release from the manifest, not from filenames.
-- Download in the background to temporary files; enforce HTTPS/trusted transport, bounded sizes and safe paths; verify size, SHA-256, and required signature/provenance; atomically move into private staging.
-- Keep the current version runnable until activation succeeds. Never force-close active sessions, terminals, jobs, or user work. Mark the candidate waiting for the project's drain condition.
-- Activation/restart/version switching requires explicit user action unless the project contract explicitly allows activation with no active sessions. Expose pending state and the remaining action.
+- Check on launch and periodically with bounded delay and optional jitter; honor project opt-out policy.
+- Resolve compatible artifacts from the manifest, not filenames or directory listings.
+- Download to a private temporary location with HTTPS/trusted transport, bounded size, safe paths, cancellation, and resumability only if explicitly designed. Verify byte count, SHA-256, signature/provenance, platform, architecture, and compatibility before atomic staging.
+- Unpack defensively: reject path traversal, unexpected executable locations, schema mismatch, and missing required files. Run component doctor/smoke before a candidate can be ready.
+- Automatic download may be enabled by contract, but it must not force-close sessions, terminals, jobs, or user work. Show `available/downloading/verifying/staged/waiting-for-drain` state and the remaining action.
+- Activation/restart/version switching requires explicit user confirmation unless the project contract explicitly permits no-session activation. Recheck the manifest and lock immediately before activation.
 
 ### Activation and rollback
 
-- Lock and revalidate immediately before activation; activate atomically through the platform-supported mechanism.
-- Retain the previous known-good release. Run a minimal process/UI/runtime health check.
-- On activation or health failure, restore the previous release without deleting user data/configuration. Record release, phase, error, and rollback evidence. Never remove the only known-good release.
+- Keep `current` runnable until the candidate passes validation. Activate with an atomic directory/pointer swap or platform-supported updater.
+- Retain a `previous` known-good release while the new one is observed. Never delete the only runnable release or user data.
+- Run a minimal process/UI/runtime health check after activation. On failure, restore `previous`, preserve diagnostics, and report the failed phase, release, component, and rollback result.
 
-## 4. Security, Compatibility, Verification
+## 5. Security, Compatibility, Verification
 
-- SHA-256 proves integrity, not publisher identity. Require code signing, notarization, or store provenance for official distribution where supported. Without required signing, stop formal publication or label the artifact as an unsigned candidate.
-- Reject mismatched platform/architecture, invalid versions/manifests, unsafe paths, wrong size/digest, truncated downloads, invalid signatures, accidental downgrades, and incompatible components.
+- SHA-256 proves integrity, not publisher identity. Require code signing, notarization, store provenance, or an explicitly documented unsigned-candidate policy.
+- Reject invalid versions/manifests, downgrade, mismatched platform/architecture, unsafe paths, wrong size/digest, truncated downloads, invalid signatures, incompatible components, and arbitrary source URLs.
 - Keep binaries, configuration, credentials, user data, and migrations in separate ownership boundaries. Never commit keys, tokens, customer data, logs, or generated secrets.
-- For Development, run affected source/type checks and focused tests. Include positive and nearby negative cases for version calculation, staging, active-work waiting, cancellation, activation failure, health failure, and rollback.
-- Run SystemTest only when independently requested, against a fixed candidate and environment, without changing the product under test. Run Deployment only when explicitly authorized through the project's controlled plan and Runbook.
+- For Development, run affected source/type checks and focused tests, including version resolution, manifest validation, component reuse, staging, active-work waiting, cancellation, activation failure, health failure, and rollback. Run independent SystemTest or Deployment only when explicitly requested/authorized.
 
-## 5. Release Candidate Black-Box Acceptance
+## 6. Release Candidate Acceptance
 
-For desktop clients, build and source checks are not the release completion gate. After the target Release is public, validate the exact published asset as a user would:
+For desktop clients, source checks are not sufficient. After a target Release is public, validate the exact published asset as a user would:
 
-- Download the installer from that Release, then verify API-reported size, SHA-256, platform, architecture, and signing/provenance status.
-- Install or upgrade using the downloaded installer and launch the installed binary, never the worktree or a debug build.
-- Assert the startup view, main navigation, key user-visible controls, and the absence of a blank, error, or partially rendered page.
-- Assert every user-visible capability changed by the release, such as a manual `检查更新` entry and its checking/result states.
-- Record installed version, process/window health, install registration, and bundled runtime/component versions.
-- Treat worktree or debug UI checks as supplementary evidence; they cannot replace Release installation acceptance.
+- Download the installer from that Release and verify API-reported size, SHA-256, platform, architecture, and signing/provenance status.
+- Install or upgrade using the downloaded installer; launch the installed binary, never the worktree or debug build.
+- Assert startup view, navigation, key controls, no blank/error/partial page, and every changed user-visible update state.
+- For thin installers, additionally verify: blank machine bootstraps successfully; eligible system components are shown as reused; missing components are fetched from the fixed source; digest/doctor failures keep the old current release; repeat MSI execution preserves registration and user data; activation leaves previous and supports rollback.
+- Record installed version, process/window health, registration, shortcuts, component versions, current/staged/previous state, and remaining user action. Worktree/debug UI checks are supplementary only.
 
-## 6. Report And Stop
+## 7. Report And Stop
 
-Report the resolved version and calculation, artifact/platform evidence, manifest and digest, current/staged/activated/previous state, remaining user action, exact verified environment, unsupported cases (recommend an Issue), and Development/SystemTest/Deployment/Git results separately.
+Report the resolved version and calculation, delivery shape and measured installer/installed sizes, artifact/platform evidence, manifest and digest, current/staged/activated/previous state, remaining user action, exact verified environment, unsupported cases (recommend an Issue), and Development/SystemTest/Deployment/Git results separately.
 
-Stop if the canonical version owner, target, signing authority, compatibility rule, confirmation boundary, or rollback path is missing and cannot be discovered safely. A local installer is not a published release.
+Stop if the canonical version owner, trusted source, signing authority, compatibility rule, confirmation boundary, active-work drain condition, or rollback path is missing and cannot be discovered safely. A local installer is not a published release.
 
 Load references only when needed:
 
-- [release-and-versioning.md](references/release-and-versioning.md): Here-style version and immutable publication rules.
+- [thin-installer.md](references/thin-installer.md): complete Here-style thin installer, component model, state machine, release transaction, and black-box acceptance.
+- [release-and-versioning.md](references/release-and-versioning.md): version resolution and immutable publication rules.
 - [lifecycle.md](references/lifecycle.md): state ownership and adapter matrix.

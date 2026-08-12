@@ -27,4 +27,6 @@ Do not overwrite an existing tag or asset. Do not publish a pointer before all r
 
 ## Here-style pattern
 
-Here is a reference for the shape, not a dependency: calculate the next Installer version from stored metadata, build only when the candidate is absent, verify or reuse an existing immutable MSI, publish it once, then update the release metadata. Apply this pattern to the project's own installer or store and keep the version calculation independent from artifact upload.
+Here is a reference for the shape, not a dependency: calculate the next Installer version from stored metadata, build only when installer behavior changed, verify or reuse an existing immutable installer, publish it once, then update release metadata. Ordinary client releases build payloads and manifests without rebuilding the stable Installer. Apply this pattern to the project's own installer or store and keep version calculation independent from artifact upload.
+
+For a thin installer, publish the complete immutable closure first: the installer or launcher asset, manifest, every required payload, and any missing third-party object. Read each object back through the same public path and compare size, SHA-256, schema, platform, architecture, and compatibility. Update the mutable bootstrap/index only as the final operation. A failed pre-commit upload must leave the old bootstrap usable; an uncertain post-commit read must be handled by re-reading, never by blind overwrite.
