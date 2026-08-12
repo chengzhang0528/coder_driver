@@ -40,6 +40,25 @@ Use immutable versioned assets under a project-owned trusted root. A typical log
 
 The names above are illustrative only. The project may use GitHub Releases, an object store, a registry, a platform store, or a signed feed.
 
+### Same-byte multi-origin closure
+
+When supported users cannot reliably reach one distribution domain, mirror the complete release closure during publication rather than improvising URLs after a runtime failure. Give every immutable artifact one byte identity (`size`, SHA-256, signature/provenance) and one canonical object key. Publish those exact bytes to each approved origin and read them back before moving the mutable Bootstrap.
+
+Keep trusted origins in the Launcher or another platform trust owner. Mutable Bootstrap and manifest data may select a validated object key, but must not introduce an arbitrary host, scheme, query, redirect target, or signed URL. Derive each fallback URL as `<compiled trusted root>/<validated object key>`, constrain redirects to approved hosts, and apply identical bounds and integrity checks on every attempt. Remove each failed partial before trying the next origin.
+
+Do not describe this as a runtime fallback if publication does not first prove the secondary closure exists. A release may be resumable after a secondary upload failure, but the old secondary Bootstrap must remain current until all new immutable objects are readable.
+
+Before publication, fail closed on publisher admission. Verify the named release environment and required secret/configuration keys without printing their values, then use a disposable object under a dedicated project-scoped probe prefix to prove write permission and anonymous public read-back. Clean up only that exact probe. Run this gate before a tag, non-draft Release, store submission, channel pointer, or other action makes the new version discoverable. A workflow that discovers missing mirror credentials only after publishing the primary Release is not a complete multi-origin transaction.
+
+Use explicit, rerunnable publication stages:
+
+1. Build the candidate once and freeze its version, bytes, size, digest, manifest, and object keys.
+2. Stage every immutable Installer, manifest, component, and required third-party object at secondary origins from that frozen candidate; anonymously read each object back and verify its identity. Do not move Bootstrap.
+3. Publish the same bytes at the primary origin, or promote a pre-staged draft, and verify them through the public path.
+4. Re-read every promised origin. Only then commit each mutable Bootstrap/index and confirm the committed bytes.
+
+If stage 2 fails, the primary version must remain undiscoverable. If stage 3 or 4 fails, retain already uploaded immutable objects for an idempotent retry and leave every old secondary Bootstrap usable. Never rebuild, overwrite immutable objects, or advance a pointer merely to escape a partial publication.
+
 ### Bootstrap
 
 Bootstrap is the only mutable pointer and should contain the minimum data an old launcher needs to locate a compatible installer and current release. At minimum, define:
@@ -74,8 +93,9 @@ Do not resolve assets by filename guesses, latest directory entries, or a mutabl
 1. The Installer lays down the launcher, icons, shortcuts, registration, and required license/bootstrap material. It should not need network access unless the platform contract explicitly requires a prerequisite bootstrapper.
 2. After install finalization, start one launcher setup flow. It must tolerate first install, same-version repair, and higher-version in-place upgrade without asking the user to uninstall when the platform supports takeover.
 3. The launcher reads the minimum bootstrap contract. If its own version is lower, it downloads and verifies the referenced newer installer, runs it, exits, and lets the new launcher restart setup. If it is newer than the pointer, it must not downgrade automatically.
-4. The launcher reads the selected release manifest, probes components, and reuses eligible system or private-cache candidates. A successful probe must be observable as reused/skipped and must not copy, upgrade, edit, or change global PATH for a system component.
-5. Missing or insufficient components are fetched only from the trusted root. A required component that cannot be verified or doctored must prevent `ready`.
+4. After an Installer/Launcher upgrade, the new Launcher must inspect the bundled release contract before starting an already installed older Manager. If that Manager cannot understand the new source or manifest contract, the Launcher prepares the compatible release itself and starts the Manager only after the bridge is complete.
+5. The launcher reads the selected release manifest, probes components, and reuses eligible system or private-cache candidates. A successful probe must be observable as reused/skipped and must not copy, upgrade, edit, or change global PATH for a system component.
+6. Missing or insufficient components are fetched only from the trusted root. A required component that cannot be verified or doctored must prevent `ready`.
 
 The launcher should expose progress with the component, phase, completed/total count, and real download bytes. Probe, hash, unpack, and doctor phases may show activity without inventing a static percentage. Errors must include the component, source key, failed phase, system message, and diagnostic location.
 
@@ -122,6 +142,7 @@ Activate by atomic directory/pointer swap or platform-supported helper. Keep `cu
 - Ordinary client releases publish a new manifest and payloads and reuse the stable Installer reference.
 - Installer objects are immutable and published once. A same-version retry must read back and prove identical size/digest; it must never overwrite.
 - The bootstrap update is last. Before changing it, verify every referenced installer, manifest, component, digest, schema, and doctor result through the public read path.
+- Keep publisher admission, secondary immutable staging, primary publication, cross-origin verification, and Bootstrap commit as distinct workflow jobs or modes with explicit dependencies. Do not put the first credential check after primary publication.
 - If a new manifest schema or launcher contract is not understood by the current launcher, publish a compatible launcher/installer first and select it only after its asset closure is complete.
 - Keep only the compatibility needed for already published launchers: usually the minimal installer fields in bootstrap. Do not promise migration of arbitrary historical private state without an explicit decision.
 
@@ -150,5 +171,6 @@ Use an exact public asset, not a worktree binary:
 7. Stage an update while work is active; assert waiting-for-drain and no forced interruption.
 8. Confirm activation, post-start health, previous retention, and rollback after a deliberately failing health check.
 9. Record exact environment, installed/current/staged/previous versions, process/window state, shortcuts, component source and outcome, and unsupported cases as Issues.
+10. For multi-origin delivery, make the preferred origin unreachable in an isolated test and assert that Bootstrap, manifest, Installer, and component reads use the secondary origin without weakening size, digest, redirect, staging, or activation rules.
 
 This is evidence for a separately requested SystemTest or release acceptance; building an installer alone does not authorize publication or deployment.

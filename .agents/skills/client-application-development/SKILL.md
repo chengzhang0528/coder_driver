@@ -50,9 +50,13 @@ Apply only the stages relevant to the client variant:
 - Build supported platform/architecture candidates and keep installer, launcher, client, and third-party components independently attributable.
 - For split desktop clients, verify the packaging graph explicitly: every HTML entry is emitted, every native binary is built, the install-time bootstrap exists before bundling, and the final public bootstrap is generated only after the Installer digest is known. Require one clean-output build before first publication.
 - Generate a manifest containing release identity, platform, architecture, minimum compatible launcher/client, component version, source/object key, archive/installation rule, byte size, SHA-256, and signature/provenance.
+- When one public network domain is not reliable for all supported users, build a same-byte multi-origin closure during publication. Keep one canonical artifact identity, derive fallback URLs only from compiled trusted roots plus validated object keys, and never accept arbitrary fallback URLs from mutable metadata.
+- Before exposing a new release or moving any public pointer, verify every promised origin's publisher admission: the named environment exists, required secret/configuration keys are non-empty, the credential can write and anonymously read back a disposable project-scoped probe, and secret values never enter logs. A missing secondary-origin credential blocks publication before the primary release becomes public.
+- Model multi-origin publication as resumable stages: build once; stage and read back immutable objects at secondary origins; publish the same candidate at the primary origin; verify every public origin; then commit each mutable bootstrap/index last. Keep these stages separately rerunnable so a late failure never rebuilds or substitutes the candidate.
 - Upload immutable assets first. Read every object back and verify size, digest, schema, and launcher compatibility. Update one mutable bootstrap/index pointer only after the complete closure is readable. A failed pre-commit publication must leave the old pointer usable.
 - Preserve third-party licenses and notices with the component that requires them.
 - Ordinary client releases must not rebuild a stable installer unless installer/launcher behavior or installer-owned assets changed. Reuse the already published installer reference.
+- A launcher, updater, source-policy, or bootstrap-compatibility change requires a new Installer/Launcher version. Complete that upgrade bridge before starting or delegating to an older running client that cannot consume the new release contract.
 - Keep client and Installer versions in separate canonical files. Version automation for an ordinary client release must not rewrite the Installer version; resolve a reused Installer's public size/digest from its immutable published asset.
 
 ### Installer, launcher, and running client
@@ -92,6 +96,7 @@ For desktop clients, source checks are not sufficient. After a target Release is
 - Install or upgrade using the downloaded installer; launch the installed binary, never the worktree or debug build.
 - Assert startup view, navigation, key controls, no blank/error/partial page, and every changed user-visible update state.
 - For thin installers, additionally verify: blank machine bootstraps successfully; eligible system components are shown as reused; missing components are fetched from the fixed source; digest/doctor failures keep the old current release; repeat MSI execution preserves registration and user data; activation leaves previous and supports rollback.
+- For a multi-origin closure, block the preferred origin and prove discovery, manifest, Installer, and component reads fall back to the secondary origin with the same size/digest assertions. A normal online test that happens to use the preferred origin is not fallback evidence.
 - Record installed version, process/window health, registration, shortcuts, component versions, current/staged/previous state, and remaining user action. Worktree/debug UI checks are supplementary only.
 
 ## 7. Report And Stop
