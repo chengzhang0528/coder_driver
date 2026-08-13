@@ -1,6 +1,6 @@
 ---
 name: client-application-development
-description: Standardize client application development, installation, release, automatic update, signing, rollback, and lifecycle validation across desktop, launcher, updater, native, mobile, and web clients. Use for Chinese requests about 开发客户端、发布、自动更新、安装程序、版本、回滚 or similar client delivery work.
+description: Standardize client application technology selection, installer construction, GitHub Release and mirror publication, official package-manager/framework updates, update UX, signing, rollback, and lifecycle validation across desktop, launcher, updater, native, mobile, and web clients. Use for Chinese requests about 技术选型、开发客户端、安装包、GitHub Release、OSS、检测更新、应用内更新、自动更新、版本、发布、回滚 or similar client delivery work.
 ---
 
 # Client Application Development
@@ -11,9 +11,11 @@ Keep product facts in the project's ProductContract, Decision, CurrentDesign, so
 
 ## 1. Establish The Contract
 
-Before implementation, identify the client variant, supported OS/device/browser and architectures, distribution target, canonical version source, installer/package boundary, update owner, component owners, user confirmation boundary, active-work drain rule, signing/provenance requirement, and this request's execution type. Resolve each fact from the project's formal owner and code evidence. If owners conflict, repair the single fact owner before expanding scope.
+Before implementation, identify the client variant, current technology stack, supported OS/device/browser and architectures, installation source, distribution target, canonical version source, installer/package boundary, first-install channels, update owner, component owners, user confirmation boundary, active-work drain rule, hidden-process requirement, signing/provenance requirement, and this request's execution type. Resolve each fact from the project's formal owner and code evidence. If owners conflict, repair the single fact owner before expanding scope.
 
 Never infer SystemTest or Deployment from build success, CI, a tag, a candidate, a release, or Git push. A feature plus its focused verification remains Development unless the user separately asks for an independent test or deployment result.
+
+Load [technology-and-update-channels.md](references/technology-and-update-channels.md) completely when choosing a stack or installer, publishing GitHub Release/OSS first-install assets, selecting an official updater, or designing update interaction and process behavior.
 
 ## 2. Choose The Delivery Shape
 
@@ -27,7 +29,7 @@ Do not call a large self-contained package “thin”. Measure installer bytes s
 
 When the project chooses thin delivery, load [thin-installer.md](references/thin-installer.md) before designing or coding. Adapt its contracts to the project; never copy its example provider, path, schema version, or names verbatim.
 
-## 3. Resolve Release Intent Like Here
+## 3. Resolve Release Intent
 
 Make normal release requests human-friendly and deterministic:
 
@@ -47,7 +49,7 @@ Apply only the stages relevant to the client variant:
 
 ### Build and publish
 
-- Build supported platform/architecture candidates and keep installer, launcher, client, and third-party components independently attributable.
+- Use the existing framework's official package/installer builder when it satisfies the platform contract. Build every declared frontend, native, and helper entry for supported platforms from one frozen source/version; keep installer, launcher, client, and third-party components independently attributable, then calculate size and SHA-256 after final signing.
 - For split desktop clients, verify the packaging graph explicitly: every HTML entry is emitted, every native binary is built, the install-time bootstrap exists before bundling, and the final public bootstrap is generated only after the Installer digest is known. Require one clean-output build before first publication.
 - Generate a manifest containing release identity, platform, architecture, minimum compatible launcher/client, component version, source/object key, archive/installation rule, byte size, SHA-256, and signature/provenance.
 - When one public network domain is not reliable for all supported users, build a same-byte multi-origin closure during publication. Keep one canonical artifact identity and let the deployment or platform owner provide the configured distribution endpoints; the application must not invent transport-security policy.
@@ -58,6 +60,7 @@ Apply only the stages relevant to the client variant:
 - Ordinary client releases must not rebuild a stable installer unless installer/launcher behavior or installer-owned assets changed. Reuse the already published installer reference.
 - A launcher, updater, source-policy, or bootstrap-compatibility change requires a new Installer/Launcher version. Complete that upgrade bridge before starting or delegating to an older running client that cannot consume the new release contract.
 - Keep client and Installer versions in separate canonical files. Version automation for an ordinary client release must not rewrite the Installer version; resolve a reused Installer's public size/digest from its immutable published asset.
+- Use one versioned GitHub Release as the canonical human-download record when the project selects GitHub. If OSS is required for reliable first installation, mirror the exact signed installer bytes and checksum under an immutable versioned key, read both back, and publish any mutable install pointer last. Keep these acquisition channels separate from later in-app updates; prefer the official package manager, store, framework updater, or established launcher matching the actual installation source.
 
 ### Installer, launcher, and running client
 
@@ -68,12 +71,12 @@ Apply only the stages relevant to the client variant:
 
 ### Runtime update
 
-- Check on launch and periodically with bounded delay and optional jitter; honor project opt-out policy.
-- Resolve compatible artifacts from the manifest, not filenames or directory listings.
-- Download to a private temporary location with bounded size, safe paths, cancellation, and resumability only if explicitly designed. Use the configured endpoint without rejecting HTTP or adding custom certificate, scheme, Origin/Host, redirect, or source-allowlist checks. Verify byte count, SHA-256, signature/provenance, platform, architecture, and compatibility before atomic staging.
-- Unpack defensively: reject path traversal, unexpected executable locations, schema mismatch, and missing required files. Run component doctor/smoke before a candidate can be ready.
-- Automatic download may be enabled by contract, but it must not force-close sessions, terminals, jobs, or user work. Show `available/downloading/verifying/staged/waiting-for-drain` state and the remaining action.
-- Activation/restart/version switching requires explicit user confirmation unless the project contract explicitly permits no-session activation. Recheck the manifest and lock immediately before activation.
+- Default to a user-invoked `Check for updates` action that performs a read-only version check and shows `up to date`, `update available`, or a retryable failure without mutation. Only after availability, expose a separate `Update now` action with target version, expected download/restart impact, and any active-work block.
+- Match the update owner to the installation source. Use the official package-manager command/API, platform store, desktop framework updater, or existing launcher; `npm update` is only applicable after proving npm owns that installed component and its version semantics are correct.
+- When an existing launcher owns manifest-driven updates, resolve compatible artifacts from the manifest rather than filenames or directory listings. Download to a private temporary location with bounded size, safe paths, cancellation, and resumability only if explicitly designed. Use the configured endpoint without rejecting HTTP or adding custom certificate, scheme, Origin/Host, redirect, or source-allowlist checks. Verify byte count, SHA-256, signature/provenance, platform, architecture, and compatibility before atomic staging. Unpack defensively and run component doctor/smoke before readiness.
+- When a package manager, store, or framework updater owns discovery and installation, do not duplicate its download, unpack, signature, staging, or activation implementation. Adapt its official status/result while retaining the application's active-work, confirmation, hidden-process, and user-visible recovery contract.
+- Keep automatic checks/downloads disabled by default; only an explicit ProductContract may opt in. Never force-close work, show the remaining action, and require explicit confirmation for activation/restart/version switching unless the contract permits no-session activation; recheck the target and lock immediately before activation.
+- Execute update tooling from a backend-owned hidden process and stream bounded progress to the existing UI. On Windows, suppress console creation for `.cmd`, `.bat`, PowerShell, package-manager, installer, and helper processes. Never flash a terminal or create a second frontend/window for update progress.
 
 ### Activation and rollback
 
@@ -88,6 +91,7 @@ Apply only the stages relevant to the client variant:
 - Reject invalid versions/manifests, downgrade, mismatched platform/architecture, unsafe paths, wrong size/digest, truncated downloads, invalid signatures, and incompatible components.
 - Keep binaries, configuration, credentials, user data, and migrations in separate ownership boundaries. Never commit keys, tokens, customer data, logs, or generated secrets.
 - For Development, run affected source/type checks and focused tests, including version resolution, manifest validation, component reuse, staging, active-work waiting, cancellation, activation failure, health failure, and rollback. Run independent SystemTest or Deployment only when explicitly requested/authorized.
+- Verify the two-step check/update contract, repeated-click exclusion, stale-result handling, hidden background execution, no terminal/duplicate-window flash, defer/cancel boundaries, active-work preservation, restart confirmation, and official-source installed version.
 
 ## 6. Release Candidate Acceptance
 
@@ -108,6 +112,7 @@ Stop if the canonical version owner, trusted source, signing authority, compatib
 
 Load references only when needed:
 
-- [thin-installer.md](references/thin-installer.md): complete Here-style thin installer, component model, state machine, release transaction, and black-box acceptance.
+- [thin-installer.md](references/thin-installer.md): thin-installer component model, state machine, release transaction, and black-box acceptance.
 - [release-and-versioning.md](references/release-and-versioning.md): version resolution and immutable publication rules.
 - [lifecycle.md](references/lifecycle.md): state ownership and adapter matrix.
+- [technology-and-update-channels.md](references/technology-and-update-channels.md): stack and installer selection, GitHub Release/OSS first-install channels, official update owners, two-step update UX, and hidden process behavior.

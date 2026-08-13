@@ -128,9 +128,9 @@ Failure removes only temporary or failed staging data. It must not alter `curren
 
 Use the smallest state machine that changes ownership, user action, or recovery:
 
-`current -> checking -> available -> downloading -> verifying -> staged -> waiting-for-drain -> activating -> health-check -> ready`
+`current -> checking -> up-to-date | available -> updating/downloading -> verifying -> staged -> waiting-for-drain -> restart-required/activating -> health-check -> ready`
 
-Failure may occur from any state. Automatic checks/downloads may be enabled by contract, but activation is normally a user-confirmed action. The Manager sends intent such as `check`, `confirm-update`, or `cancel`; the launcher performs the work. A pending update must remain visible and must not be mistaken for an activated version.
+Failure may occur from any state. By default the Manager sends a read-only `check`, then exposes `update` only after a compatible version is available; the launcher performs the work. Automatic checks/downloads require an explicit ProductContract override, and activation remains a separate user-confirmed action. A pending update must remain visible and must not be mistaken for an activated version.
 
 Before activation, revalidate the selected manifest, component digests, launcher compatibility, and active-work count. The Manager stops accepting new work and waits for the documented drain condition. Never force-close active sessions as a routine update mechanism.
 

@@ -25,9 +25,17 @@ Each candidate should have:
 
 Do not overwrite an existing tag or asset. Do not publish a pointer before all referenced immutable assets are readable and verified. A release workflow may be triggered by a version tag, a protected manual dispatch, or an approved API action, but the trigger must not bypass deployment authorization.
 
-## Here-style pattern
+## GitHub Release And Installer Mirrors
 
-Here is a reference for the shape, not a dependency: calculate the next Installer version from stored metadata, build only when installer behavior changed, verify or reuse an existing immutable installer, publish it once, then update release metadata. Ordinary client releases build payloads and manifests without rebuilding the stable Installer. Apply this pattern to the project's own installer or store and keep version calculation independent from artifact upload.
+When GitHub Release is the canonical first-install record, use one versioned tag and create the Release as a draft. Attach the complete frozen platform matrix with explicit OS/architecture names, one checksum manifest, signatures/provenance, and concise install/upgrade notes. Read the draft and every asset back through the API before making it public.
+
+If first-install network reachability requires OSS or another mirror, upload the exact same final installer bytes under an immutable versioned key and compare size plus SHA-256 after public read-back. Never rebuild per channel or let a mirror become a different candidate. Publish the GitHub draft and commit mutable install indexes only after every promised channel and platform asset is readable.
+
+These are first-install acquisition channels unless the product explicitly assigns update ownership to them. Subsequent in-app updates should use the official package manager, store, desktop framework updater, or established launcher that owns the installed component. Do not add a custom GitHub/OSS downloader merely because the installer is published there.
+
+## Stable Installer Pattern
+
+Calculate the next Installer version from stored metadata, build only when installer behavior changed, verify or reuse an existing immutable installer, publish it once, then update release metadata. Ordinary client releases build payloads and manifests without rebuilding the stable Installer. Apply this pattern to the project's own installer or store and keep version calculation independent from artifact upload.
 
 For a thin installer, publish the complete immutable closure first: the installer or launcher asset, manifest, every required payload, and any missing third-party object. Read each object back through the same public path and compare size, SHA-256, schema, platform, architecture, and compatibility. Update the mutable bootstrap/index only as the final operation. A failed pre-commit upload must leave the old bootstrap usable; an uncertain post-commit read must be handled by re-reading, never by blind overwrite.
 
