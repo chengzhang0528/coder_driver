@@ -20,10 +20,10 @@ State the recommended decision, scope, and whether the plan is ready to code.
 
 ## 3. Decision table
 
-| Outcome / decision | Current support | Required change | Owner | Evidence | Open decision |
-|---|---|---|---|---|---|
+| Outcome / decision | Current support | Required change | User surface | Owner | Persistence impact | Evidence | Open decision |
+|---|---|---|---|---|---|---|---|
 
-Use only the evidence needed to support each decision. Add UI, API, data/schema, security, operations, migration, or compatibility notes only for dimensions that the outcome actually affects; name concrete assets only when verified. Group related surfaces and actions.
+Use only the evidence needed to support each decision. For every outcome, state whether it changes an existing frontend/client surface, adds a user entrypoint, remains internal, or is unreachable, and whether it reuses state or changes persistence. Add API, data/schema, security, operations, migration, or compatibility notes only for dimensions that the outcome actually affects; name concrete assets only when verified. Group related surfaces and actions.
 
 Every unresolved product rule must become two or three labelled choices, with one marked recommended. Do not leave a reviewer with an open-ended “define/confirm rule” request.
 

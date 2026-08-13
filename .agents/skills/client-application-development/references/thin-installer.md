@@ -19,8 +19,8 @@ Thin delivery optimizes the first quantity and component reuse. It does not prom
 | Boundary | Owns | Must not own |
 |---|---|---|
 | Installer/package manager | First install, repair, in-place upgrade, uninstall, shortcuts, registration, platform prerequisites | Release selection, application payload download, runtime session lifecycle |
-| Launcher/Updater | Fixed bootstrap, manifest resolution, component probing, downloads, integrity checks, safe unpack, doctor/smoke, staging, activation, health, rollback, client start | Product data, project/workspace state, arbitrary source URLs, release-write credentials |
-| Client Manager | Visible version/update state, check/update/cancel intent, user confirmation, drain coordination | Downloading, unpacking, replacing its own binaries, selecting an untrusted source |
+| Launcher/Updater | Bootstrap, manifest resolution, component probing, downloads, integrity checks, safe unpack, doctor/smoke, staging, activation, health, rollback, client start | Product data, project/workspace state, transport-security policy, release-write credentials |
+| Client Manager | Visible version/update state, check/update/cancel intent, user confirmation, drain coordination | Downloading, unpacking, replacing its own binaries, choosing transport-security policy |
 | Release tooling | Candidate build, manifest, immutable asset upload, read-back verification, final bootstrap commit | Runtime updates, user data migration, mutable duplicate payload storage |
 | Public source | Exact read of bootstrap, installer, manifests, payloads, and required third-party objects | Client-side write access or source discovery through directory listing |
 
@@ -28,7 +28,7 @@ The launcher must be a small, stable executable or equivalent platform helper. T
 
 ## 3. Assets And Contracts
 
-Use immutable versioned assets under a project-owned trusted root. A typical logical layout is:
+Use immutable versioned assets at distribution endpoints owned by deployment or the platform. A typical logical layout is:
 
 ```text
 <root>/bootstrap/<platform>-<arch>.json
@@ -44,7 +44,7 @@ The names above are illustrative only. The project may use GitHub Releases, an o
 
 When supported users cannot reliably reach one distribution domain, mirror the complete release closure during publication rather than improvising URLs after a runtime failure. Give every immutable artifact one byte identity (`size`, SHA-256, signature/provenance) and one canonical object key. Publish those exact bytes to each approved origin and read them back before moving the mutable Bootstrap.
 
-Keep trusted origins in the Launcher or another platform trust owner. Mutable Bootstrap and manifest data may select a validated object key, but must not introduce an arbitrary host, scheme, query, redirect target, or signed URL. Derive each fallback URL as `<compiled trusted root>/<validated object key>`, constrain redirects to approved hosts, and apply identical bounds and integrity checks on every attempt. Remove each failed partial before trying the next origin.
+Let deployment or the platform owner supply the complete endpoint for each origin. Do not compile host, scheme, certificate, Origin/Host, redirect, or source-allowlist policy into application code. Apply identical size, digest, signature/provenance, cancellation, and safe-path checks on every attempt, and remove each failed partial before trying the next origin.
 
 Do not describe this as a runtime fallback if publication does not first prove the secondary closure exists. A release may be resumable after a secondary upload failure, but the old secondary Bootstrap must remain current until all new immutable objects are readable.
 
@@ -78,7 +78,7 @@ The manifest is the sole owner of the component closure. Each component record s
 - stable component ID and version;
 - platform and architecture;
 - minimum compatible launcher/client;
-- exact source/object key under the trusted root;
+- exact source/object key at a configured distribution endpoint;
 - archive type and safe installation path;
 - byte size and SHA-256;
 - code-signing/provenance requirement;
@@ -95,7 +95,7 @@ Do not resolve assets by filename guesses, latest directory entries, or a mutabl
 3. The launcher reads the minimum bootstrap contract. If its own version is lower, it downloads and verifies the referenced newer installer, runs it, exits, and lets the new launcher restart setup. If it is newer than the pointer, it must not downgrade automatically.
 4. After an Installer/Launcher upgrade, the new Launcher must inspect the bundled release contract before starting an already installed older Manager. If that Manager cannot understand the new source or manifest contract, the Launcher prepares the compatible release itself and starts the Manager only after the bridge is complete.
 5. The launcher reads the selected release manifest, probes components, and reuses eligible system or private-cache candidates. A successful probe must be observable as reused/skipped and must not copy, upgrade, edit, or change global PATH for a system component.
-6. Missing or insufficient components are fetched only from the trusted root. A required component that cannot be verified or doctored must prevent `ready`.
+6. Missing or insufficient components are fetched from the configured distribution endpoint. A required component that cannot be verified or doctored must prevent `ready`.
 
 The launcher should expose progress with the component, phase, completed/total count, and real download bytes. Probe, hash, unpack, and doctor phases may show activity without inventing a static percentage. Errors must include the component, source key, failed phase, system message, and diagnostic location.
 
@@ -113,7 +113,7 @@ Do not reject a candidate solely because it came from a different trusted instal
 
 ## 6. Download, Verify, Unpack, Stage
 
-Download to a private `.part` or temporary path. Enforce HTTPS or the platform's equivalent trusted transport, a maximum size, cancellation, and safe destination calculation. On completion:
+Download to a private `.part` or temporary path from the configured endpoint. The application must accept the configured HTTP or HTTPS scheme and must not add custom TLS, certificate, scheme, Origin/Host, redirect, or source-allowlist enforcement. Enforce a maximum size, cancellation, and safe destination calculation. On completion:
 
 1. Verify exact byte count.
 2. Verify SHA-256 and required signature/provenance.
@@ -164,13 +164,13 @@ Use an exact public asset, not a worktree binary:
 
 1. Verify API/object metadata, size, SHA-256, platform, architecture, and signing/provenance.
 2. Install on a clean supported machine or isolated profile; confirm launcher starts and creates the expected shortcut/registration.
-3. Confirm the launcher can bootstrap a release using only the fixed public source.
+3. Confirm the launcher can bootstrap a release using the deployment-configured public endpoint.
 4. Repeat the same Installer and then run a higher Installer; confirm one registration, preserved user data, and no uninstall requirement.
 5. Test both eligible and missing system-component cases; assert reuse versus download.
 6. Corrupt a staged asset or doctor result; assert `current` remains runnable and no bad release becomes ready.
 7. Stage an update while work is active; assert waiting-for-drain and no forced interruption.
 8. Confirm activation, post-start health, previous retention, and rollback after a deliberately failing health check.
 9. Record exact environment, installed/current/staged/previous versions, process/window state, shortcuts, component source and outcome, and unsupported cases as Issues.
-10. For multi-origin delivery, make the preferred origin unreachable in an isolated test and assert that Bootstrap, manifest, Installer, and component reads use the secondary origin without weakening size, digest, redirect, staging, or activation rules.
+10. For multi-origin delivery, make the preferred origin unreachable in an isolated test and assert that Bootstrap, manifest, Installer, and component reads use the secondary origin without weakening size, digest, staging, or activation rules.
 
 This is evidence for a separately requested SystemTest or release acceptance; building an installer alone does not authorize publication or deployment.

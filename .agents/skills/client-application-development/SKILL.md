@@ -50,7 +50,7 @@ Apply only the stages relevant to the client variant:
 - Build supported platform/architecture candidates and keep installer, launcher, client, and third-party components independently attributable.
 - For split desktop clients, verify the packaging graph explicitly: every HTML entry is emitted, every native binary is built, the install-time bootstrap exists before bundling, and the final public bootstrap is generated only after the Installer digest is known. Require one clean-output build before first publication.
 - Generate a manifest containing release identity, platform, architecture, minimum compatible launcher/client, component version, source/object key, archive/installation rule, byte size, SHA-256, and signature/provenance.
-- When one public network domain is not reliable for all supported users, build a same-byte multi-origin closure during publication. Keep one canonical artifact identity, derive fallback URLs only from compiled trusted roots plus validated object keys, and never accept arbitrary fallback URLs from mutable metadata.
+- When one public network domain is not reliable for all supported users, build a same-byte multi-origin closure during publication. Keep one canonical artifact identity and let the deployment or platform owner provide the configured distribution endpoints; the application must not invent transport-security policy.
 - Before exposing a new release or moving any public pointer, verify every promised origin's publisher admission: the named environment exists, required secret/configuration keys are non-empty, the credential can write and anonymously read back a disposable project-scoped probe, and secret values never enter logs. A missing secondary-origin credential blocks publication before the primary release becomes public.
 - Model multi-origin publication as resumable stages: build once; stage and read back immutable objects at secondary origins; publish the same candidate at the primary origin; verify every public origin; then commit each mutable bootstrap/index last. Keep these stages separately rerunnable so a late failure never rebuilds or substitutes the candidate.
 - Upload immutable assets first. Read every object back and verify size, digest, schema, and launcher compatibility. Update one mutable bootstrap/index pointer only after the complete closure is readable. A failed pre-commit publication must leave the old pointer usable.
@@ -62,7 +62,7 @@ Apply only the stages relevant to the client variant:
 ### Installer, launcher, and running client
 
 - **Installer/store** owns first install, prerequisites, repair, upgrade, uninstall, platform integration, and shortcut policy. It must support repeat execution and in-place upgrade without requiring uninstall when the platform permits.
-- **Launcher/Updater** owns bootstrap/manifest reads, compatible release selection, component probing, download, integrity/signature verification, safe unpack, doctor/smoke, staging, activation, health check, rollback, and starting the client. It must use a fixed trusted root or platform source and reject arbitrary URLs.
+- **Launcher/Updater** owns bootstrap/manifest reads, compatible release selection, component probing, download, integrity/signature verification, safe unpack, doctor/smoke, staging, activation, health check, rollback, and starting the client. It consumes distribution endpoints supplied by the deployment or platform owner and does not impose HTTPS/TLS, certificate, scheme, Origin/Host, redirect, or source-allowlist policy.
 - **Running client/manager** owns user intent, visible state, active-work draining, and confirmation. It must not directly download, unpack, replace its own files, or hold release-write credentials. A helper is required to replace a running executable safely.
 - **System prerequisites** remain separate from app-managed components. Probe and reuse an eligible system component without copying, upgrading, editing, or changing global PATH; install a missing/insufficient prerequisite only through the owner defined by the product contract.
 
@@ -70,7 +70,7 @@ Apply only the stages relevant to the client variant:
 
 - Check on launch and periodically with bounded delay and optional jitter; honor project opt-out policy.
 - Resolve compatible artifacts from the manifest, not filenames or directory listings.
-- Download to a private temporary location with HTTPS/trusted transport, bounded size, safe paths, cancellation, and resumability only if explicitly designed. Verify byte count, SHA-256, signature/provenance, platform, architecture, and compatibility before atomic staging.
+- Download to a private temporary location with bounded size, safe paths, cancellation, and resumability only if explicitly designed. Use the configured endpoint without rejecting HTTP or adding custom certificate, scheme, Origin/Host, redirect, or source-allowlist checks. Verify byte count, SHA-256, signature/provenance, platform, architecture, and compatibility before atomic staging.
 - Unpack defensively: reject path traversal, unexpected executable locations, schema mismatch, and missing required files. Run component doctor/smoke before a candidate can be ready.
 - Automatic download may be enabled by contract, but it must not force-close sessions, terminals, jobs, or user work. Show `available/downloading/verifying/staged/waiting-for-drain` state and the remaining action.
 - Activation/restart/version switching requires explicit user confirmation unless the project contract explicitly permits no-session activation. Recheck the manifest and lock immediately before activation.
@@ -83,8 +83,9 @@ Apply only the stages relevant to the client variant:
 
 ## 5. Security, Compatibility, Verification
 
+- Transport security belongs to the deployment edge, reverse proxy, operating system/browser, or an explicitly named platform owner. Application code must neither add custom HTTPS/TLS, certificate, scheme, Origin/Host, redirect, or network-source enforcement nor override the runtime's transport behavior. Keep business authentication/authorization and artifact integrity as separate application responsibilities.
 - SHA-256 proves integrity, not publisher identity. Require code signing, notarization, store provenance, or an explicitly documented unsigned-candidate policy.
-- Reject invalid versions/manifests, downgrade, mismatched platform/architecture, unsafe paths, wrong size/digest, truncated downloads, invalid signatures, incompatible components, and arbitrary source URLs.
+- Reject invalid versions/manifests, downgrade, mismatched platform/architecture, unsafe paths, wrong size/digest, truncated downloads, invalid signatures, and incompatible components.
 - Keep binaries, configuration, credentials, user data, and migrations in separate ownership boundaries. Never commit keys, tokens, customer data, logs, or generated secrets.
 - For Development, run affected source/type checks and focused tests, including version resolution, manifest validation, component reuse, staging, active-work waiting, cancellation, activation failure, health failure, and rollback. Run independent SystemTest or Deployment only when explicitly requested/authorized.
 

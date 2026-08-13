@@ -59,8 +59,13 @@ Test the proposed direction with these questions:
 5. Can an existing owner or mechanism satisfy the outcome with less permanent complexity?
 6. Would a downstream skill be able to add concrete detail without changing the outcome, boundary, invariants, ownership, or completion rule?
 7. Is a known future result being mistaken for an authorized task, or a finite candidate inventory being mistaken for a complete audit? Candidates remain untyped and uncommitted until the user explicitly starts them; completeness requires a declared audit scope.
+8. Can every user acceptance scenario be reached through a supported product entrypoint? Move internal fault injection to focused tests and remove obsolete or impossible scenarios.
+9. Are independently changing facts being compressed into one enum or behavior flag, or are new tables, APIs, caches, workers, containers, and UI states being proposed without a proven owner and consumer?
+10. Are scale, retention, concurrency, idempotency, recursion, recovery, compatibility, and remote-failure machinery supported by current evidence, or are they speculative operating cost?
 
 Prefer removal, reuse, deferral, or reassignment when they preserve the outcome with less lasting cost. Use external products and general best practices only as candidate generators, never as authority.
+
+Choose the fastest verification that covers the retained risk. Preserve a broader or slower verification path only when a real shared consumer, release promise, or failure boundary makes focused evidence insufficient.
 
 ## Decide and Respond
 
