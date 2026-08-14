@@ -10,7 +10,7 @@ Measure three separate quantities:
 
 - Installer transfer size.
 - First-run download size.
-- Final installed disk usage, including caches and retained previous versions.
+- Final installed disk usage, including caches and any prior versions retained by the recovery contract.
 
 Thin delivery optimizes the first quantity and component reuse. It does not promise a small installed footprint or offline operation.
 
@@ -19,7 +19,7 @@ Thin delivery optimizes the first quantity and component reuse. It does not prom
 | Boundary | Owns | Must not own |
 |---|---|---|
 | Installer/package manager | First install, repair, in-place upgrade, uninstall, shortcuts, registration, platform prerequisites | Release selection, application payload download, runtime session lifecycle |
-| Launcher/Updater | Bootstrap, manifest resolution, component probing, downloads, integrity checks, safe unpack, doctor/smoke, staging, activation, health, rollback, client start | Product data, project/workspace state, transport-security policy, release-write credentials |
+| Launcher/Updater | Bootstrap, manifest resolution, component probing, downloads, integrity checks, safe unpack, doctor/smoke, staging, activation, health, project-owned recovery, client start | Product data, project/workspace state, transport-security policy, release-write credentials |
 | Client Manager | Visible version/update state, check/update/cancel intent, user confirmation, drain coordination | Downloading, unpacking, replacing its own binaries, choosing transport-security policy |
 | Release tooling | Candidate build, manifest, immutable asset upload, read-back verification, final bootstrap commit | Runtime updates, user data migration, mutable duplicate payload storage |
 | Public source | Exact read of bootstrap, installer, manifests, payloads, and required third-party objects | Client-side write access or source discovery through directory listing |
@@ -67,7 +67,7 @@ Bootstrap is the only mutable pointer and should contain the minimum data an old
 - installer version, exact source/object key, size, SHA-256, signature/provenance;
 - release version, exact manifest source/object key, size, SHA-256, signature/provenance;
 - minimum launcher/client compatibility when required;
-- optional policy such as check interval or channel, only if the product contract owns it.
+- optional policy such as check interval or channel, only when an explicit project formal owner owns it.
 
 An old launcher must not need to parse the whole release manifest just to upgrade itself. Do not make Manager APIs, private cache layout, or product-domain state part of the minimum historical bootstrap contract unless there is an explicit compatibility decision.
 
@@ -122,7 +122,7 @@ Download to a private `.part` or temporary path from the configured endpoint. Th
 5. Verify required files and licenses are present.
 6. Atomically mark the component/release staged only after all checks pass.
 
-Failure removes only temporary or failed staging data. It must not alter `current`, `previous`, user data, or an already verified cache. Re-running may reuse a verified immutable cache object.
+Failure removes only temporary or failed staging data. It must not alter `current`, user data, any prior release retained by the recovery contract, or an already verified cache. Re-running may reuse a verified immutable cache object.
 
 ## 7. Client State And Activation
 
@@ -130,11 +130,11 @@ Use the smallest state machine that changes ownership, user action, or recovery:
 
 `current -> checking -> up-to-date | available -> updating/downloading -> verifying -> staged -> waiting-for-drain -> restart-required/activating -> health-check -> ready`
 
-Failure may occur from any state. By default the Manager sends a read-only `check`, then exposes `update` only after a compatible version is available; the launcher performs the work. Automatic checks/downloads require an explicit ProductContract override, and activation remains a separate user-confirmed action. A pending update must remain visible and must not be mistaken for an activated version.
+Failure may occur from any state. By default the Manager sends a read-only `check`, then accepts a second explicit `update` intent only after a compatible version is available; the launcher performs the work. The project UI may reuse a dynamic control or expose separate controls. Automatic checks/downloads remain disabled when no formal owner defines the policy; an explicit ProductContract, Decision, CurrentDesign, or Runbook may opt in. Activation remains a separate user-confirmed action, and a pending update must remain visible rather than being mistaken for an activated version.
 
 Before activation, revalidate the selected manifest, component digests, launcher compatibility, and active-work count. The Manager stops accepting new work and waits for the documented drain condition. Never force-close active sessions as a routine update mechanism.
 
-Activate by atomic directory/pointer swap or platform-supported helper. Keep `current` until the candidate is ready. Retain `previous` while the new release is observed. A health failure restores `previous`, leaves user data/configuration untouched, and records release, phase, error, and rollback evidence. Never delete the only known-good release.
+Activate by atomic directory/pointer swap or platform-supported helper. Keep `current` until the candidate is ready, and never delete the only runnable release or user data. Resolve either automatic rollback or forward repair from the project's formal owner. Use automatic rollback only with tested binary, configuration, and persisted-data backward compatibility; retain `previous` while the new release is observed. Under forward repair, do not mark an incompatible prior release as a rollback target. A health failure executes the selected recovery contract and records release, phase, error, recovery mode, remaining runnable state, and result.
 
 ## 8. Installer And Launcher Evolution
 
@@ -169,8 +169,8 @@ Use an exact public asset, not a worktree binary:
 5. Test both eligible and missing system-component cases; assert reuse versus download.
 6. Corrupt a staged asset or doctor result; assert `current` remains runnable and no bad release becomes ready.
 7. Stage an update while work is active; assert waiting-for-drain and no forced interruption.
-8. Confirm activation, post-start health, previous retention, and rollback after a deliberately failing health check.
-9. Record exact environment, installed/current/staged/previous versions, process/window state, shortcuts, component source and outcome, and unsupported cases as Issues.
+8. Confirm activation, post-start health, and the configured recovery mode. For automatic rollback, deliberately fail health and prove restoration; for forward repair, prove no incompatible prior release is selected and the repair state remains diagnosable.
+9. Record exact environment, installed/current/staged versions, any contract-owned previous version, recovery result, process/window state, shortcuts, component source and outcome, and unsupported cases as Issues.
 10. For multi-origin delivery, make the preferred origin unreachable in an isolated test and assert that Bootstrap, manifest, Installer, and component reads use the secondary origin without weakening size, digest, staging, or activation rules.
 
 This is evidence for a separately requested SystemTest or release acceptance; building an installer alone does not authorize publication or deployment.

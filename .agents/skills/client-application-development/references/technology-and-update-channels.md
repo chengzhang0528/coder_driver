@@ -9,9 +9,9 @@ Prefer the current repository stack and its official packaging/update path. Comp
 | Product shape | Prefer | Require before choosing |
 |---|---|---|
 | CLI or library installed by a language ecosystem | Native registry and package manager | A published package, one canonical package/version owner, supported global/tool installation, and official upgrade semantics |
-| Desktop web UI with existing Electron/Tauri/Wails/native shell | Existing framework packager and updater | Supported OS/architecture output, signing, hidden helper execution, restart/activation behavior, and rollback evidence |
+| Desktop web UI with existing Electron/Tauri/Wails/native shell | Existing framework packager and updater | Supported OS/architecture output, signing, hidden helper execution, restart/activation behavior, and post-activation recovery evidence |
 | Native desktop client | Existing OS-native installer/toolchain | Real OS integration, prerequisites, service/helper, repair/uninstall, or offline requirements |
-| Store-managed client | Platform store | Store rules, signing, staged rollout, update ownership, and rollback limitations |
+| Store-managed client | Platform store | Store rules, signing, staged rollout, update ownership, and recovery limitations |
 | Large multi-component client | Stable thin launcher plus manifest components | Proven need for independent payload reuse, first-run network behavior, compatibility bridge, and recovery |
 
 Do not introduce another runtime, UI shell, installer framework, updater service, or release stream for familiarity alone. Record build size, installed size, prerequisites, signing support, cross-platform cost, update ownership, process behavior, and long-term maintenance for a material choice.
@@ -54,7 +54,7 @@ Match updates to the actual installation source and official ecosystem mechanism
 | Cargo install | Cargo or an established project-approved updater | Use the supported crate/update path; do not assume self-update exists |
 | .NET global tool | `dotnet tool update` | Preserve source and tool-path rules |
 | Homebrew/Winget/Chocolatey/store | That system/store owner | Deep-link or invoke only the supported noninteractive update path |
-| Electron/Tauri/Wails/native packaged app | Existing framework/platform updater or stable launcher | Use its signed feed, staging, activation, restart, and rollback contract |
+| Electron/Tauri/Wails/native packaged app | Existing framework/platform updater or stable launcher | Use its signed feed, staging, activation, restart, and project-owned recovery contract |
 | Thin multi-component client | Existing launcher/updater | Manifest-driven component preparation and atomic activation |
 
 `npm update` is an example, not a universal rule. For a global CLI, the correct operation may be `npm install -g <package>@latest`; for a locally pinned dependency, changing the project lockfile may be a Development operation rather than an end-user client update. Verify the official command and its version semantics from the project's package manager and current install layout.
@@ -70,7 +70,7 @@ Keep application, installer/launcher, and managed capability versions separate w
 Default to a deliberate two-step interaction:
 
 1. `Check for updates` performs a bounded read-only check. Show current version and one result: up to date, update available with target version, or failed with retry. It must not install, restart, or alter active work.
-2. `Update now` appears only when an update is available. Before starting, show download/restart requirements and whether active work must finish. Allow defer; allow cancellation until the official updater's safe commit boundary.
+2. Accept a second explicit `Update now` intent only when an update is available. Before starting, show download/restart requirements and whether active work must finish. The UI may reuse one dynamic control or expose a separate control. Allow defer; allow cancellation until the official updater's safe commit boundary.
 
 Represent only states that change user action or recovery:
 
@@ -96,8 +96,8 @@ Do not interrupt sessions, jobs, terminals, uploads, or unsaved work. Download/s
 - Repeated check clicks coalesce or disable correctly; a stale response cannot overwrite a newer one.
 - Check-only never mutates installed state.
 - Update cannot start without an available compatible target.
-- Progress, cancellation, failure, retry, waiting-for-drain, restart, health, and rollback are visible in the existing UI.
+- Progress, cancellation, failure, retry, waiting-for-drain, restart, health, and the selected recovery result are visible in the existing UI.
 - Background execution produces no `cmd`, PowerShell, terminal, installer shell, or duplicate frontend flash.
-- Active work and user data survive failure, defer, restart, and rollback.
+- Active work and user data survive failure, defer, restart, and the selected recovery behavior.
 - Installed version after success matches the official registry/feed/store and the UI's reported version.
 - First-install GitHub and OSS artifacts remain identical and are tested separately from in-app update behavior.
