@@ -12,7 +12,7 @@ Use `rg` to locate only the relevant owners:
 - startup, exit, restart reconciliation, Session cleanup, and polling loops;
 - function-style tool declaration and runtime availability snapshots;
 - model-facing managed Skills and reserved namespaces;
-- package doctor, runtime probe, package-manager adapter, updater manifest, managed paths, installer target generation, GitHub Release workflow, OSS mirror job, packaging, and integration scripts;
+- package doctor, runtime probe, package-manager adapter, updater manifest, managed paths, installer target generation, fixed OSS publisher/Bootstrap job, GitHub tag or release-note automation, packaging, and integration scripts;
 - update UI command/state ownership, active-work drain, restart confirmation, backend process flags, console-window suppression, progress, cancellation, and failure reporting.
 
 Read adjacent tests for every selected owner. Record the exact consumer set before changing a command, environment variable, state field, release component, tool declaration, or managed Skill.
@@ -36,4 +36,4 @@ For stateful programs, define the exact client-to-program state transport and ex
 
 When maintaining an existing capability, begin at the failing behavior and preserve its released CLI/state compatibility unless the task explicitly authorizes a break. A neighboring capability may illustrate source navigation but does not define a universal lifecycle.
 
-Trace the installed artifact back to its source before choosing an updater. Inspect package manifests, lockfiles, installer configuration, desktop framework config, release workflows, registry metadata, and current install layout. Do not infer npm, GitHub Release, OSS, or a custom launcher merely from the language used by one component.
+Trace the installed artifact back to its source before choosing an updater. Inspect package manifests, lockfiles, installer configuration, desktop framework config, OSS publication workflows, registry metadata, and current install layout. Workspace-owned release binaries always use the fixed OSS bucket, but do not infer npm, an official package-manager update, or a custom launcher merely from the language used by one component.
