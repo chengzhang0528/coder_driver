@@ -75,6 +75,10 @@ Test the proposed direction with these questions:
 9. Are independently changing facts being compressed into one enum or behavior flag, or are new tables, APIs, caches, workers, containers, and UI states being proposed without a proven owner and consumer?
 10. Are scale, retention, concurrency, idempotency, recursion, recovery, compatibility, and remote-failure machinery supported by current evidence, or are they speculative operating cost?
 
+For a human operator's explicit action, first verify permission, action scope, input validity, and named product, tenant, security, and data-integrity invariants. When those checks pass, preserve the operator's intent. Do not add behavior that blocks the action, rewrites submitted or retained state, couples otherwise independent settings, or requires extra confirmation solely because misuse or operator error is imaginable. Require an explicit contract, invariant, or user-approved requirement for each such guard; authorization does not override those named boundaries.
+
+Positive case: an authorized operator deliberately changes one valid configuration value, so unrelated valid state remains unchanged unless a contract defines the coupling. Negative case: an action that crosses tenant scope or exposes protected data remains blocked because it violates a named boundary, regardless of the operator's other permissions.
+
 Prefer removal, reuse, deferral, or reassignment when they preserve the outcome with less lasting cost. Use external products and general best practices only as candidate generators, never as authority.
 
 Choose the fastest verification that covers the retained risk. Preserve a broader or slower verification path only when a real shared consumer, release promise, or failure boundary makes focused evidence insufficient.

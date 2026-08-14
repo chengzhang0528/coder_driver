@@ -26,6 +26,7 @@ Lead with concrete findings, ordered by impact:
 - **Scope**: Does the proposal change unrelated tasks, projects, users, phases, skills, documents, or runtime behavior?
 - **Assumptions and evidence**: Which decisions depend on unverified facts, stale conversation, convention, or inferred authority?
 - **Ownership**: Are product facts, implementation design, reusable method, workflow authorization, task state, and operations assigned to their actual owners?
+- **Operator intent**: Does the proposal block, rewrite, couple state, or add confirmation to an otherwise valid action by an authorized human operator without naming the product, tenant, security, or data-integrity boundary that requires it? Hypothetical misuse or operator error is not sufficient evidence for a guard.
 - **Complexity and lifecycle**: Does it introduce duplicate rules, recursion, permanent state, compatibility burden, or process ceremony without a durable need?
 - **Completion and failure**: Are success, stopping conditions, validation, rollback, and unresolved decisions observable and proportionate?
 - **Counterexamples**: Test at least one nearby case that should be covered and one that must remain outside the proposal.
