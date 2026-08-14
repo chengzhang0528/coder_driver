@@ -35,6 +35,18 @@ Keep the contract compact and domain-independent:
 
 Do not fill missing sections with speculative detail. Do not enumerate empty technical layers. A downstream implementation concern becomes part of the direction only when it changes one of these fields.
 
+## Guard Requirement Authority
+
+Classify every input that could change the direction contract:
+
+- **Confirmed requirement**: an explicit user instruction, correction, acceptance, or bounded delegation. Only this class defines the desired outcome and hard requirements.
+- **Verified fact**: source, types, tests, measured behavior, or the routed formal owner establish the current state or feasibility. A fact may constrain a truthful solution but does not redefine the user's desired outcome.
+- **Working assumption**: an inference, recommendation, preference, or default that has neither authority above. Keep it visible and reversible at its first consequential use.
+
+Silence, repetition, prior-plan inclusion, and downstream copying do not confirm an assumption. Promote it only through explicit user acceptance, or reclassify it as a verified fact when evidence supports it; never blur those two authorities. If it changes the outcome, boundary, invariants, ownership, public or persisted commitments, completion rule, or an irreversible or external action, expose it as an open decision. If it affects only a reversible, non-material implementation choice, state the default and proceed within the confirmed boundary.
+
+Preserve this provenance across every revision and handoff. Do not turn a working assumption into an invariant, acceptance criterion, non-goal, prohibition, ownership decision, compatibility promise, or stop condition merely because an earlier artifact used it. For example, an inferred companion capability remains a suggestion, while a source-proven public consumer is a verified compatibility fact; explicit delegation lets the agent choose only within the delegated boundary.
+
 ## Learn From Corrections
 
 When the user corrects an answer or repeatedly rejects the same framing:

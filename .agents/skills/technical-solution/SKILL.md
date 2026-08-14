@@ -56,13 +56,14 @@ Include these sections in substance:
 7. Verification
 8. Open Questions and Non-Goals
 
-Use exact paths, routes, contracts, tables, jobs, and owners when verified. Separate verified facts from assumptions and inferences. For phased work, state prerequisites, this phase's stopping boundary, downstream handoff, and explicit exclusions.
+Use exact paths, routes, contracts, tables, jobs, and owners when verified. Separate confirmed requirements, verified facts, and working assumptions. Keep each working assumption visible and reversible; never promote it into an invariant, success criterion, non-goal, prohibition, ownership decision, compatibility promise, or stop condition. Explicit bounded delegation supplies authority only within that boundary; silence, repetition, or prior-plan inclusion does not. For phased work, state prerequisites, this phase's stopping boundary, downstream handoff, and explicit exclusions.
 
 ## Coding-ready gate
 
 Do not hand the plan to coding unless:
 
 - it preserves the direction contract without redefining its outcome, invariants, ownership, or completion rule;
+- every retained constraint identifies whether its authority is a confirmed requirement or a verified fact, and no working assumption is treated as mandatory;
 - the allowed change surface and prohibited dependencies are explicit;
 - critical behavior is grounded in source, measured state, or an authoritative contract;
 - success is observable through named UI actions, tests, APIs, CLI output, artifacts, or database checks;
