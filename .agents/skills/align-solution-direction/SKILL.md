@@ -47,6 +47,18 @@ Silence, repetition, prior-plan inclusion, and downstream copying do not confirm
 
 Preserve this provenance across every revision and handoff. Do not turn a working assumption into an invariant, acceptance criterion, non-goal, prohibition, ownership decision, compatibility promise, or stop condition merely because an earlier artifact used it. For example, an inferred companion capability remains a suggestion, while a source-proven public consumer is a verified compatibility fact; explicit delegation lets the agent choose only within the delegated boundary.
 
+## Gate Whether Logic Should Exist
+
+Treat every proposed check, validation, guard, coupling, and policy gate as a requirement candidate rather than an automatic implementation detail. Classify it before passing direction downstream:
+
+- **Platform or protocol requirement**: retain only when the authoritative platform contract requires it or the runtime demonstrably cannot operate without it.
+- **Correctness, security, authorization, or data invariant**: retain when it prevents a concrete violation regardless of whether the actor is an ordinary user, administrator, operator, or automation.
+- **Ordinary-user protection**: retain when an ordinary user can reach the input and the check prevents a likely, costly, or confusing mistake.
+- **Administrator/operator configuration**: assume the authorized operator owns the choice. Do not duplicate validation already performed by a framework or external provider; pass configured values through and surface the real error unless invalid input could corrupt owned state, cross a named security or authorization boundary, or prevent the system from identifying whether the capability is configured.
+- **Preference, environment policy, or common best practice**: do not turn it into a functional prerequisite without an explicit user or product requirement.
+
+For each retained item, identify who can trigger the failure, the concrete harm prevented, and why this component and phase must enforce it. Being configurable, running in an environment named Production, being easy to compare, or being conventional is not sufficient evidence. Prefer deletion, provider/framework enforcement, pass-through configuration, or optional documentation over repository-specific policy code when they preserve the confirmed outcome.
+
 ## Learn From Corrections
 
 When the user corrects an answer or repeatedly rejects the same framing:
