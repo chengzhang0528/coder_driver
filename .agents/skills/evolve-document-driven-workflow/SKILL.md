@@ -1,6 +1,6 @@
 ---
 name: evolve-document-driven-workflow
-description: Use when the user asks to form a 方法轮, improve the document-driven coding workflow from conversation history, turn repeated corrections into a skill, or gives a durable future-facing agent/process instruction such as 以后必须、一律、统一、不要再. On the first request, produce a grounded proposal, have that exact proposal challenged, recommend the next user action, and stop without workspace changes; implement only on a later explicit user request. Keep one-off product requirements local and never store chat narrative.
+description: Evolve workspace governance from a requested workflow improvement or a durable future-facing agent/process correction such as 以后必须、一律、统一、不要再. Distinguish discussion from authorized implementation by user intent and scope, not message count. Keep one-off product requirements local.
 ---
 
 # Evolve Document-Driven Workflow
@@ -13,7 +13,7 @@ Use this as a recurring method loop, not a one-time redesign:
 
 `observe -> identify wrong assumption -> choose generality -> reconcile owners -> verify -> learn from the next task`
 
-Do not solve the concrete product problem in this skill. First use `../align-solution-direction/SKILL.md` to preserve the latest intent. On the first governance-correction request, use `../technical-solution/SKILL.md` to form the proposal and `../challenge-solution/SKILL.md` to review that exact artifact, then recommend the next user action and end the task. Use `../document-governance/SKILL.md` only after a later user request explicitly authorizes implementation.
+Do not solve the concrete product problem in this skill. Establish the desired rule, scope, owner and observable outcome from the request and verified facts. Load `../align-solution-direction/SKILL.md` only for a material unresolved choice about direction; use `../technical-solution/SKILL.md` for a requested technical solution or a controlled technical change under WF-0002. Authorized governance edits use `../document-governance/SKILL.md`.
 
 ## Trigger Gate
 
@@ -24,12 +24,18 @@ Run the loop when either condition is true:
 
 Do not trigger merely because a product requirement says a field, API, page, test, or deployment “must” behave a certain way. Keep one-off acceptance and local implementation constraints in the current task and their actual product/code owner. If durable scope is genuinely ambiguous and would broaden authority, stop for that decision; otherwise choose the narrowest local scope.
 
-The request that first introduces or materially revises a governance correction is review-only, even when it uses imperative wording. A later message that explicitly asks to execute the already presented and challenged proposal is a new authorized Development task. Do not represent the gap between those requests as a workflow phase, pending task, approval state, ChangePlan, or other persisted lifecycle.
+Choose the response from the current request and established authorization:
+
+- Discussion, evaluation, challenge, an explicit no-edit request, or a general observation without a concrete requested change stays read-only. Return the grounded proposal or review and end that task without persisted activity state.
+- An explicit implementation request, including a concrete future-facing correction directed at the workflow, authorizes the required governance edit when the rule and scope are clear. Evaluate, implement and verify within that scope in the same Development task, including on the first request. A proposal alone does not authorize its implementation.
+- Discoverable facts and routine implementation choices do not require another user instruction. If a material choice remains unresolved or a change needs additional authority, pause only the dependent work, explain that exact decision, and continue independent authorized work. Existing authorization remains valid within its scope.
+
+Use WorkflowContract for control strength and persistence; governance edits remain controlled. Preserve the root AGENTS engineering and safety gates, and explain the old constraint, new constraint and risk for an authorized baseline adjustment. Do not create a workflow phase, approval state, task or plan merely because a discussion precedes implementation.
 
 ## Load
 
 1. Read the latest user instruction and only the earlier turns needed to recover its correction chain: rejected assumptions, repeated failures, accepted revisions, and current desired behavior.
-2. Read root `AGENTS.md`, `文档/TASK_CONTROL.md`, the actual governance owners under review, and only the relevant skills/checker tests. Read `文档/工作流/WORKFLOW_CONTRACT.md` when it is itself a review target or when the later implementation request changes workspace governance; a read-only proposal does not select or enter a Workflow.
+2. Reuse already-read current context: root `AGENTS.md`, `文档/TASK_CONTROL.md`, the actual governance owners and only relevant skills/checker tests. Read `文档/工作流/WORKFLOW_CONTRACT.md` when it is a review target or the request authorizes governance changes; a read-only proposal does not select or enter a Workflow.
 3. Read `WORK_CANDIDATES.md` under `文档/` only when the correction concerns known future work, promotion, or completeness answers.
 4. Treat conversation as authority for desired agent behavior, not as product/code fact. Do not use Archive as a current rule source or scan unrelated documents.
 
@@ -67,21 +73,21 @@ Record “no change” when a surface already enforces the corrected rule. Never
 - Recoverable authorized work: TASK_CONTROL; evidence-backed uncommitted outcome: WORK_CANDIDATES.
 - Product behavior or implementation: its ProductContract, CurrentDesign, source and tests, outside this method.
 
-### 6. Produce a reviewed proposal and stop
+### 6. Review only the decisions that need it
 
-For the first request, use `technical-solution` to state the old assumption, proposed invariant, boundary, actual owners, positive and negative cases, expected impact, and proportionate verification. Pass that fixed proposal to `challenge-solution`. Present the proposal and its review without silently rewriting either one, recommend whether the user should request revision, implementation, or no further action, and end the current task.
+For a discussion or requested proposal, state the old assumption, proposed invariant, boundary, actual owners, positive and negative cases, expected impact and proportionate verification. Keep a simple rule correction concise; a full technical-solution format is conditional on that skill's trigger.
 
-Do not edit files, register a task, create an activity plan, update candidates, or write Git state during this proposal task. A review verdict never authorizes implementation.
+Use `../challenge-solution/SKILL.md` only when the user requests a challenge or a named material uncertainty about the proposed outcome, boundary, ownership or completion rule warrants it. Supply a fixed proposal and keep that review read-only. A review verdict grants no authority; a review-only request ends after its result, while a review within authorized implementation returns to that task if no blocking decision remains. Do not invoke review because this is the first request or recursively review the review.
 
-### 7. Implement only on a later explicit request
+### 7. Complete authorized implementation
 
-When the user later asks to execute the presented proposal, verify that the requested scope still matches the reviewed artifact. If implementation requires a material change to the outcome, boundary, owners, or completion rule, produce and challenge a revised proposal and stop again. Otherwise use `document-governance` and replace the conflicting rule at its owner; update only direct routers, dependent skills and necessary machine guards.
+For an implementation request, establish the authorized delta, constraints, observable success criteria and stop conditions, then use `document-governance` to replace the conflicting rule at its owner. Update only direct routers, dependent skills and necessary machine guards. Choose implementation order from the dependencies and evidence. If a correction changes the approach within the authorized outcome, update the working plan and continue; a new outcome, boundary or user-owned decision follows the trigger gate above.
 
 Do not preserve both old and new rules as caveats, replicate risk matrices, or rewrite unrelated governance.
 
 ### 8. Verify behavior, not wording
 
-Add a positive case that must pass and a nearby negative case that must fail or remain local. Run the modified skill's `quick_validate.py`, focused checker tests, `npm run check:docs`, targeted conflict scans, and scoped whitespace checks. Do not run product SystemTest or Deployment unless separately requested.
+Verify a positive case that must proceed and a nearby negative case that must remain read-only or local. Run the modified skill's `quick_validate.py`, relevant checker tests, `npm run check:docs`, targeted conflict scans and scoped whitespace checks. Structural validation does not prove improved model behavior. Once required checks pass, broaden or repeat them only for new changes, failures or concrete unresolved concerns. Do not run product SystemTest or Deployment unless separately requested.
 
 ### 9. Close and keep learning
 
@@ -89,4 +95,4 @@ For an implementation task, use WF-0004. A temporary controlled evolution has no
 
 ## Completion Rule
 
-A proposal task is complete when one grounded proposal and its read-only challenge have been returned with one recommended next user action; no workspace or lifecycle state remains open. A later implementation task is complete only when the accepted instruction is enforced at the right owner, all three surfaces were evaluated, stale conflicting behavior was removed, positive and negative evidence pass, and task/document lifecycle is clean. Repository commit or push remains a separate status.
+A discussion or review task is complete when its requested result and any necessary next decision have been returned; no workspace or lifecycle state remains open. An implementation task is complete when the authorized instruction is enforced at the right owner, all three surfaces were evaluated, stale conflicting behavior was removed, positive and negative evidence pass, and task/document lifecycle is clean. Repository commit or push remains a separate status.

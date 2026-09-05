@@ -11,7 +11,7 @@ Treat a request called "plugin" as a managed capability only when the current pr
 
 1. Read the workspace and matched project/source `AGENTS.md`, task control, source, types, tests, ProductContract, CurrentDesign, and Runbook routed by those entries.
 2. Search the current executor, tool declaration, Artifact, lifecycle, doctor, installer, package manager, updater, release, and test owners before designing. Load [extension-point discovery](references/extension-point-discovery.md) completely for a code change.
-3. Use `align-solution-direction` before proposing a solution and `technical-solution` for controlled coding work. Preserve unrelated worktree changes.
+3. Use `align-solution-direction` only for a material unresolved choice about outcome, boundary, ownership or completion; use `technical-solution` for a requested technical solution or controlled coding work. Reuse clear established direction and preserve unrelated worktree changes.
 4. Treat source and tests as authority for current behavior. A reference or neighboring capability is a navigation aid, not an API promise.
 5. For technology selection, installation, fixed OSS publication, or update behavior, load `../client-application-development/SKILL.md` and its [technology and update channels](../client-application-development/references/technology-and-update-channels.md) reference completely. Keep shared delivery rules there and capability-specific component facts here.
 

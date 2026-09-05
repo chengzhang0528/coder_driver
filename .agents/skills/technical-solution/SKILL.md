@@ -1,31 +1,31 @@
 ---
 name: technical-solution
-description: Use after align-solution-direction when producing or revising a Development-phase reviewer-first technical solution, implementation/refactor/integration/migration plan, staged engineering scheme, DOC/TASK handoff, or other plan meant to drive code. Consumes the stable direction contract and translates only impacted development dimensions into grounded changes and white-box completion; SystemTest and Deployment remain separate tasks.
+description: Produce a requested technical solution or the working plan for a controlled technical change under WF-0002. Preserve established direction, requirement provenance, user surface and persistence ownership, and proceed within explicit implementation authorization. Ordinary implementation does not require this skill; discussion and review requests stay read-only.
 ---
 
 # Technical Solution
 
 ## Goal
 
-First use `../align-solution-direction/SKILL.md`. Carry its direction contract: outcome, boundary, this task's execution type, invariants, ownership, completion rule, and material open decisions. Do not reopen or reinterpret those decisions here. Return to alignment only when verified evidence makes the direction impossible or exposes a genuinely material choice. If alignment stops, do not create a coding-ready solution.
+Establish or reuse the compact direction contract: outcome, boundary, this task's execution type, invariants, ownership, completion rule and material open decisions. Load `../align-solution-direction/SKILL.md` only when a material direction choice cannot be resolved from available facts and user instructions. Preserve settled decisions; pause dependent implementation only for a blocking choice, missing evidence or authority.
 
-Start with a compact review decision sheet that maps each approved outcome to current support, required change, user surface, owner, persistence impact, evidence, and any material open decision. Add UI, API, data, operations, security, migration, or other impact only when that dimension is actually affected. Do not enumerate empty layers or turn a review plan into a file-by-file coding recipe.
+For a requested solution or review, map the outcome to current support, required change, user surface, owner, persistence impact, evidence and material open decisions. For already authorized implementation, establish the necessary working plan and continue through implementation and verification. Add UI, API, data, operations, security or migration detail only when affected; a plan does not require a separate presentation or approval round.
 
 Use this skill only for a requested solution or a controlled technical change under WF-0002. Do not invoke it for a change classified as normal by `WORKFLOW_CONTRACT.md`; those changes use the user request, targeted fact discovery, source, types and tests directly.
 
 This skill is Development-only. A coding-ready solution may define scoped white-box verification and name a possible candidate output, but must not include an independent system-test campaign or deployment sequence as implementation steps. Route an explicitly requested SystemTest objective to its skill, which separately chooses control strength and persistence; Deployment always receives its own durable controlled task and plan. Do not call either a project or session phase transition.
 
-Only produce a coding-ready handoff after the reviewer has approved the direction or explicitly asks for implementation detail. If a blocking fact or observable acceptance surface is missing, keep the result at review/research status.
+An explicit implementation request authorizes its necessary planning and coding within scope once the coding-ready gate below is satisfied. Do not require separate direction approval when existing authorization and facts settle it. A solution-only request authorizes the requested design deliverable, not coding. If a blocking fact or observable acceptance surface is missing, pause dependent implementation and continue independent authorized work.
 
 ## Load
 
-Read root `AGENTS.md`, `文档/TASK_CONTROL.md`, `文档/工作流/WORKFLOW_CONTRACT.md`, WF-0002, the matched project `AGENTS.md`, `references/solution-template.md`, and the actual durable formal owner selected by the task: AgentEntry, ProductContract, CurrentDesign, Decision, Runbook, StructureContract, WorkflowContract or Workflow. Read only other sources needed by the scope. Do not create a placeholder CurrentDesign when another owner or source and tests already carry the facts; stop if no truthful durable owner can be identified.
+Reuse current root `AGENTS.md`, `文档/TASK_CONTROL.md` and matched project context; load the actual durable formal owner and missing facts needed by the task. Read `references/solution-template.md` when delivering a requested solution or detailed handoff; a temporary controlled implementation can keep its compact working plan in the task. Read `文档/工作流/WORKFLOW_CONTRACT.md` and the main Workflow when changing the workspace or preparing durable recovery; read-only discussion does not enter a Workflow. Do not create a placeholder CurrentDesign when another owner or source and tests already carry the facts; pause a required artifact write if no truthful durable owner can be identified.
 
 ## Build the solution
 
-### Review-first format (default)
+### Requested solution or review
 
-Lead with one decision table. Each candidate capability must state:
+Use a decision table when comparing choices; a simple decision can use concise prose. Cover the relevant fields:
 
 | Outcome / decision | Current support | Required change | User surface | Owner | Persistence impact | Evidence | Open decision |
 |---|---|---|---|---|---|---|---|
@@ -34,7 +34,7 @@ Lead with one decision table. Each candidate capability must state:
 - Group closely related surfaces and actions by business capability; do not repeat every component, field, endpoint, test class, or historical detail in the main plan.
 - State whether the outcome changes an existing frontend/client surface, needs a new user entrypoint, remains internal, or is unreachable. State `no persistence change`, `reuse existing state`, `schema migration`, or `new persisted state` instead of leaving data ownership implicit.
 - State the recommended order and no more than the prerequisite that affects a decision.
-- Separate “can start after approval” from “blocked until a product/ownership decision”.
+- Distinguish already authorized work, a requested design deliverable, and work blocked by a concrete product/ownership decision.
 - State schema, migration, public-contract, operational, or compatibility impact only when the outcome reaches that boundary. Name concrete assets only when verified.
 - Turn each unresolved product rule into two or three mutually exclusive, labelled choices and mark one as recommended. Do not write vague requests such as “confirm the rule”, “clarify the model”, or “determine ownership” without saying what the reviewer can choose.
 - Give a short explicit list of rejected/non-goal legacy behavior so review does not reopen it accidentally.
@@ -43,9 +43,9 @@ When a user correction changes the direction contract, regenerate every dependen
 
 Use exact paths, routes, contracts, tables, jobs, and owners only to substantiate a decision or when a coding-ready follow-up is requested. Keep the main plan concise.
 
-### Coding-ready supplement (only after approval or explicit request)
+### Working plan for authorized implementation or requested detail
 
-Include these sections in substance:
+Cover these items in substance, using only the structure needed by the task:
 
 1. Goal and Scope
 2. Facts and Sources
@@ -78,4 +78,4 @@ Before coding any controlled technical change, establish its A→B delta, agent 
 
 ## Closeout
 
-Keep non-blocking questions separate from stop conditions. Register only user-authorized executable work that needs durable recovery in `文档/TASK_CONTROL.md`; controlled strength alone is insufficient. Do not keep a Development task or ChangePlan active solely because Git closeout or another explicitly requested task remains after implementation and scoped white-box completion has passed. A requested SystemTest objective is a separate task and gets an activity plan only when durable and controlled; Deployment always gets its own durable task and plan. Add `WORK_CANDIDATES.md` only when verified work leaves an independent, evidence-backed, uncommitted outcome; do not type it or auto-promote it. Before reporting completion, execute WF-0004 conditionally and report repository state separately.
+Keep non-blocking questions separate from stop conditions. Once required verification passes, broaden or repeat checks only for new changes, failures or concrete unresolved concerns. Register only user-authorized executable work that needs durable recovery in `文档/TASK_CONTROL.md`; controlled strength alone is insufficient. Do not keep a Development task or ChangePlan active solely because Git closeout or another explicitly requested task remains after implementation and scoped white-box completion has passed. A requested SystemTest objective is a separate task and gets an activity plan only when durable and controlled; Deployment always gets its own durable task and plan. Add `WORK_CANDIDATES.md` only when verified work leaves an independent, evidence-backed, uncommitted outcome; do not type it or auto-promote it. Before reporting completion, execute WF-0004 conditionally and report repository state separately.

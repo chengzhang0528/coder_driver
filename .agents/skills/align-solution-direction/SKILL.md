@@ -1,6 +1,6 @@
 ---
 name: align-solution-direction
-description: Use before producing or materially revising any solution, architecture proposal, implementation/refactor/integration/migration plan, rollout plan, or reviewer decision in this workspace. Establish a domain-independent direction contract from the latest user intent, verified facts, and prior corrections; separate outcome, boundary, invariants, completion rules, evidence, and lifecycle state; then pass silently, correct the framing, or stop only for a material decision before downstream skills add concrete detail.
+description: Align a requested solution direction or resolve a material uncertainty about outcome, boundary, ownership, invariants or completion. Use when competing interpretations or conflicting evidence could change those decisions. Clear routine implementation needs only a brief direction check, without loading this full method.
 ---
 
 # Align Solution Direction
@@ -11,7 +11,7 @@ Establish the decision frame that every downstream solution must preserve. Align
 
 Do not solve the concrete problem here. Do not produce an architecture inventory, layer checklist, file plan, test campaign, or document lifecycle. Route those details to the appropriate downstream skill after the direction is stable.
 
-If current intent and facts already agree, pass silently. Use `../technical-solution/SKILL.md` only when the user needs a concrete technical solution or coding-ready plan.
+For clear routine implementation, briefly confirm the requested result, allowed scope and observable completion from available context, then proceed without this full method. Load it when explicitly requested or a material direction choice remains unresolved; do not route every plan or correction through it. If already loaded and current intent and facts agree, pass silently. Use `../technical-solution/SKILL.md` only for a requested technical solution or a controlled technical change under WF-0002.
 
 ## Establish Authority
 
@@ -20,7 +20,7 @@ If current intent and facts already agree, pass silently. Use `../technical-solu
 3. Treat conversation history as evidence of decisions and corrections, never as product or code truth. Preserve settled choices unless the user supersedes them or verified facts make them impossible.
 4. Verify facts that can be discovered. Ask only when alternatives materially change the outcome or ownership and cannot be resolved from current authority.
 
-Read root `AGENTS.md`, `文档/TASK_CONTROL.md`, the matched project `AGENTS.md`, and only sources needed to resolve a direction-changing fact. Read `WORK_CANDIDATES.md` under `文档/` only when the user asks about later, remaining, next, or roadmap work. Follow `WORKFLOW_CONTRACT.md` only for workspace changes or cross-session recovery.
+Reuse already-read current root `AGENTS.md`, `文档/TASK_CONTROL.md` and matched project context; load only missing sources needed to resolve a direction-changing fact. Read `WORK_CANDIDATES.md` under `文档/` only when the user asks about later, remaining, next, or roadmap work. Follow `WORKFLOW_CONTRACT.md` only for workspace changes or cross-session recovery.
 
 ## Build the Direction Contract
 
@@ -101,7 +101,7 @@ Choose one outcome:
 
 - **Silent pass**: the direction contract matches current intent and evidence. Do not expose this skill or restate the contract; continue directly to the requested work.
 - **Correct and continue**: the framing, scope, ownership, completion rule, or task execution type was wrong, but no material user decision remains. State only the changed decisions and continue from the corrected contract.
-- **Stop for decision**: unresolved alternatives materially change the outcome, invariants, ownership, persisted/public commitments, or completion rule. Present two or three exclusive options, recommend one, and state the consequence.
+- **Stop for decision**: unresolved alternatives materially change the outcome, invariants, ownership, persisted/public commitments, or completion rule and cannot be resolved from verified facts or existing authorization. Pause the dependent work, present the concrete choice with a recommendation and consequence, and continue independent authorized work.
 
 Do not stop for discoverable facts, non-material assumptions, implementation preferences, later verification, or repository state. Do not repeat concrete impact matrices, file plans, or verification commands owned by downstream skills.
 

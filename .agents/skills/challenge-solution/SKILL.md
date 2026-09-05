@@ -9,7 +9,7 @@ description: Use when the user explicitly asks to challenge, question, rebut, st
 
 Act as a reviewer of one existing proposal. Test whether it is necessary, correctly scoped, evidence-backed, owned by the right mechanisms, and proportionate to the user's outcome.
 
-Do not author the missing proposal, revise the reviewed artifact, implement it, create task state, or turn the review into an approval workflow. When a proposal must first be created, route that work to `../technical-solution/SKILL.md` and review its returned artifact only after it exists.
+Do not author the missing proposal, revise the reviewed artifact, implement it, create task state, or turn the review into an approval workflow. Require a fixed proposal from the user or calling method; use `../technical-solution/SKILL.md` to author it only when a requested technical solution or controlled technical change requires that method.
 
 ## Fix the Review Target
 
@@ -43,12 +43,12 @@ Return:
 4. one verdict: `pass`, `revise`, or `reject`;
 5. one recommended next user action.
 
-End the current task after the review. The user may later request revision, implementation, or no further action. That later request receives its own authorization and task classification.
+For a review-only user request, end the task after the review. A bounded review within an already authorized task returns to its calling method; that task can continue under existing user authorization if no blocking decision remains. This review never grants implementation authority.
 
 ## Boundaries
 
 - Never modify workspace files, external state, task control, candidates, plans, or Git state.
-- Never infer implementation authority from `pass`, from the existence of a proposal, or from earlier conversation.
+- Never infer implementation authority from `pass` or the existence of a proposal. Explicit user authorization already present in the conversation remains valid for the calling task; this review step stays read-only.
 - Do not review the review recursively. The review is evidence about the proposal, not a replacement proposal.
 - If another skill or the user creates a revised proposal, review that new artifact once when explicitly requested or required by its owning method.
 - Do not make this skill an automatic gate for ordinary questions, normal Development, or every technical solution. Trigger only on an explicit challenge request or a direct handoff from a method that requires proposal review.
