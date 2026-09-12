@@ -2,17 +2,12 @@
 name: client-application-development
 description: Guide fast, bounded development of desktop, launcher, updater, native, mobile, and web clients. Use for Chinese requests about 技术选型、开发客户端、安装包、更新、版本、发布、签名、回滚、OSS or similar client delivery work. Keep reusable method rules here; load platform, distribution, and managed-runtime variants from references only when the request needs them.
 ---
-
 # Client Application Development
-
 ## Purpose
-
 Use this skill to turn a client request into the smallest verifiable implementation. The main skill owns the method: scope, ownership, delivery choice, lifecycle, evidence, and stop boundaries. Product facts remain in the project's ProductContract/CurrentDesign/Runbook, and platform or distribution details remain in references.
 
 Do not infer a SystemTest or Deployment task from build success, CI, a tag, a candidate, an installer, Git push, or the breadth of validation. A feature, fix, or governance change plus its focused checks remains Development unless the user separately requests an independent test or deployment result.
-
 ## Start With The Fast Path
-
 For the first pass, load [client-fast-path.md](references/client-fast-path.md) and complete its one-page worksheet before reading specialized references.
 
 1. Read the root and project entrypoints, then the smallest formal owner for the requested client facts.
@@ -26,7 +21,6 @@ For the first pass, load [client-fast-path.md](references/client-fast-path.md) a
 If a decision changes the outcome, ownership, persisted/public contract, compatibility promise, or external target, stop and expose two or three mutually exclusive choices. Do not stop for discoverable implementation details.
 
 ## Minimum Contract
-
 Resolve each field from the authority shown below. Keep working assumptions visible and reversible; never promote them to requirements merely because a reference or earlier plan used them.
 
 | Field | Required question | Preferred source |
@@ -63,6 +57,12 @@ The reusable lifecycle is:
 
 Keep binaries, configuration, credentials, user data, and migrations in separate ownership boundaries. Prepare candidates in temporary state, verify size/digest/provenance and declared health, preserve the current runnable release until activation is safe, and use the contract-selected recovery mode after activation. Never add a fallback origin, compatibility bridge, service, scheduled task, or custom transport-security policy without an explicit owner and requirement.
 
+## Inputs, Search, And Empty States
+
+- Text inputs and textareas use the caret as the primary focus cue. Do not add a rounded outer focus ring, halo, shadow, or boundary shift except for real error, disabled, or read-only semantics; keep keyboard focus indicators for buttons, links, selects, checkboxes, and radios.
+- Audit shared input primitives and route-local controls together. Remove decorative outline, `box-shadow`, and `focus-within` effects without weakening semantic states or accessibility.
+- Search growing collections only after the user enters a non-empty term. Do not prefetch candidates when a picker opens or while the query is empty; keep the placeholder as the primary instruction and use one centered visual for the pre-search empty state.
+- A modal's close action owns the top-right safe area. Remove duplicate headings and keep search, empty, loading, and result content clear of it. Add a focused contract test and recheck representative form, search, modal, chat, profile, model, channel, auth, and list surfaces at desktop and narrow widths.
 ## Delivery And Update Decisions
 
 Choose the existing framework/package-manager/platform path before introducing a new shell, installer, updater, runtime, or release stream. Load only the reference that matches the decision:
@@ -72,10 +72,13 @@ Choose the existing framework/package-manager/platform path before introducing a
 - [technology-and-update-channels.md](references/technology-and-update-channels.md) for stack selection and official update owners.
 - [lifecycle.md](references/lifecycle.md) for state ownership, drain, activation, and recovery.
 - [managed-runtime-acceptance.md](references/managed-runtime-acceptance.md) when the client owns a private runtime, native modules, a long-lived child process, or a generated bridge.
+- [ui-surface-design.md](references/ui-surface-design.md) when the client owns settings, management, forms, lists, search, or other dense user-facing surfaces.
 - [platform-windows.md](references/platform-windows.md) for Windows installer, hidden process, WebView2, upgrade, and uninstall behavior.
 - [release-and-versioning.md](references/release-and-versioning.md) and [distribution-and-signing.md](references/distribution-and-signing.md) only when release, signing, or immutable publication is in scope.
 
 Do not read every reference by default. The fast path selects the smallest set.
+
+The UI surface reference is a generic supplement. Load it only for a matching client-owned surface, after the project's ProductContract, design system, shared component owner, and page-family guidance are known. It does not import another project's navigation, settings layout, role cards, tables, themes, or component additions; when it conflicts with a project-owned rule, repair or clarify that owner instead of combining both patterns.
 
 ## Execution Boundaries
 
