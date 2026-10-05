@@ -96,7 +96,7 @@ Do not resolve assets by filename guesses, latest directory entries, or a mutabl
 
 The launcher should expose progress with the component, phase, completed/total count, and real download bytes. Probe, hash, unpack, and doctor phases may show activity without inventing a static percentage. Errors must include the component, source key, failed phase, system message, and diagnostic location.
 
-For a Windows takeover, list running product processes and ask the user to save work before requesting normal shutdown. Show the waiting state. After five seconds, terminate only a process whose executable path has been verified inside the product installation root; use a longer deadline only when source or a formal platform contract already defines one. Never terminate reused system components or unrelated processes.
+For a Windows takeover, list running product processes and ask the user to save work before requesting normal shutdown. Show the waiting state. Use the wait deadline and force-termination boundary defined by the project contract. A timeout alone does not authorize terminating active work; any permitted termination must target a process whose executable path is verified inside the product installation root. Never terminate reused system components or unrelated processes.
 
 ## 5. Component Probe And Reuse
 Probe order is project-defined but must be deterministic. A candidate is reusable only when all are true:

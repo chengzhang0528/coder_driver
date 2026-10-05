@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { validateHumanDocumentation } from "./check-docs-human.mjs";
-import { resolveDocumentReference } from "./check-docs-references.mjs";
+import { hasMachineSpecificWorkspacePath, resolveDocumentReference } from "./check-docs-references.mjs";
 import {
   ACTIVITY_KINDS,
   PLAN_KINDS,
@@ -18,6 +18,7 @@ const docsRoot = path.join(root, "文档");
 const structurePath = path.join(docsRoot, "WORKSPACE_STRUCTURE.md");
 const ignored = new Set([
   ".git",
+  ".artifacts",
   ".reports",
   ".codex-build",
   ".venv",
@@ -521,7 +522,7 @@ for (const file of files.filter((item) => {
     || label.startsWith(".agents/skills/");
 })) {
   const text = texts.get(file);
-  if (/[A-Za-z]:[\\/][^\s`]+/.test(text)) {
+  if (hasMachineSpecificWorkspacePath(text)) {
     errors.push(`${relative(file)}: contains a machine-specific workspace path`);
   }
   if (/Password=(?!<|\$\{|%|\$env:|__)[^;\s"'`]+/i.test(text)) {

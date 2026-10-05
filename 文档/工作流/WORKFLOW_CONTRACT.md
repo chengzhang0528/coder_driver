@@ -4,7 +4,7 @@ Status: Active
 Kind: WorkflowContract
 Scope: coder_driver-template / 智能体治理
 Owner: 项目维护者
-Updated: 2026-08-08
+Updated: 2026-10-05
 Depends On:
 - ../WORKSPACE_STRUCTURE.md
 
@@ -61,7 +61,7 @@ Depends On:
 持久化需求独立于执行类型和控制强度，只回答是否必须保存可恢复现场。
 
 - **临时执行**：当前任务可以在同一回合完成或明确结束，没有需要后续恢复的阻断、共享环境修改、部分发布或回滚状态。它不登记 `TASK_CONTROL.md`，不创建活动计划；受控任务仍须在当前任务工作计划中执行完整门禁。
-- **持久执行**：已授权工作需要跨会话恢复、存在持续阻断，或已经产生必须恢复的外部部分状态。它登记唯一活动任务；受控 Development、SystemTest、Deployment 分别绑定 ChangePlan、SystemTestPlan、DeploymentPlan，调查阻断按需绑定 Issue。
+- **持久执行**：已授权工作需要跨会话恢复、存在持续阻断，或已经产生必须恢复的外部部分状态时，登记唯一活动任务。持久受控技术变更（WF-0002）绑定 ChangePlan，SystemTest 与 Deployment 分别绑定 SystemTestPlan、DeploymentPlan；WF-0001 文档变更不创建 ChangePlan，任务指向实际事实入口，持续阻断按需绑定 Issue。
 - Deployment 在改变目标前始终属于持久执行。共享可变测试环境需要恢复时属于持久执行；只读不可变候选验证可按实际恢复需求判定。
 - `WORK_CANDIDATES.md` 保存已知、独立、有依据但未获当前用户授权的结果。候选不是任务，不携带执行类型、控制强度、环境或授权，不能触发工作流；用户明确发起后才在同一变更中移除候选并完成三个轴的判断。
 - 默认“后续还有什么”只回答活动任务与候选清单中的已知结果，不宣称完整。只有在先声明项目、能力或代码范围并审计其长期事实源和代码证据后，才可给出该范围的完整性结论。

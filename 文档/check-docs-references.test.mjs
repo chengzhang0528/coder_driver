@@ -4,7 +4,19 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { resolveDocumentReference } from "./check-docs-references.mjs";
+import { hasMachineSpecificWorkspacePath, resolveDocumentReference } from "./check-docs-references.mjs";
+
+test("accepts official web citations without mistaking URL schemes for drive letters", () => {
+  assert.equal(hasMachineSpecificWorkspacePath("[Source](https://learn.microsoft.com/example)"), false);
+  assert.equal(hasMachineSpecificWorkspacePath("[Local service](http://localhost:5320/)"), false);
+});
+
+test("still detects machine-specific paths in links, code and Chinese prose", () => {
+  assert.equal(hasMachineSpecificWorkspacePath("[Source](D:/checkout/source.md)"), true);
+  assert.equal(hasMachineSpecificWorkspacePath("`C:\\checkout\\source.md`"), true);
+  assert.equal(hasMachineSpecificWorkspacePath("目录D:/checkout/source.md"), true);
+  assert.equal(hasMachineSpecificWorkspacePath("https://example.org/ and D:/checkout/source.md"), true);
+});
 
 async function createFixture(t) {
   const root = await mkdtemp(path.join(tmpdir(), "check-docs-references-"));
@@ -54,4 +66,26 @@ test("resolves governed document roots without product-specific names", async (t
     resolveDocumentReference({ ...fixture, raw: ".agents/skills/example/SKILL.md" }),
     path.join(fixture.root, ".agents", "skills", "example", "SKILL.md"),
   );
+});
+
+test("linked worktrees resolve missing sibling sources beside their primary checkout only", async (t) => {
+  const fixture = await createFixture(t);
+  const primary = path.join(fixture.root, "primary", "project");
+  const linked = path.join(fixture.root, "linked", "project");
+  const gitDir = path.join(primary, ".git", "worktrees", "linked");
+  await mkdir(gitDir, { recursive: true });
+  await mkdir(linked, { recursive: true });
+  await mkdir(path.join(primary, "..", "model"), { recursive: true });
+  await writeFile(path.join(linked, ".git"), `gitdir: ${gitDir}\n`);
+  await writeFile(path.join(gitDir, "commondir"), "../..\n");
+  const expected = path.resolve(primary, "../model/domain.md");
+  await writeFile(expected, "domain");
+  await writeFile(path.join(primary, "only-main.md"), "not in linked checkout");
+  const resolve = raw => resolveDocumentReference({ root: linked, docsRoot: path.join(linked, "文档"), source: path.join(linked, "AGENTS.md"), raw });
+  assert.equal(resolve("../model/domain.md"), expected);
+  assert.equal(resolve("../model/missing.md"), path.resolve(linked, "../model/missing.md"));
+  assert.equal(resolve("only-main.md"), path.join(linked, "only-main.md"));
+  await mkdir(path.resolve(linked, "../model"));
+  await writeFile(path.resolve(linked, "../model/domain.md"), "local wins");
+  assert.equal(resolve("../model/domain.md"), path.resolve(linked, "../model/domain.md"));
 });

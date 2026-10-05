@@ -1,7 +1,7 @@
 interface:
   display_name: "Document Governance"
-  short_description: "Keep durable rules at their sole document owner"
-  default_prompt: "Use $document-governance to separate execution type, control strength, recoverable active work, and evidence-backed uncommitted candidates while keeping each fact at one owner."
+  short_description: "Govern document ownership and controlled technical writing"
+  default_prompt: "Use $document-governance to govern document ownership and task recovery, and apply the shared controlled technical writing rules when creating or materially revising workspace documents."
 
 policy:
   allow_implicit_invocation: true

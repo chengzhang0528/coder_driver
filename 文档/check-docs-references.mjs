@@ -1,6 +1,24 @@
 import fs from "node:fs";
 import path from "node:path";
 
+export function hasMachineSpecificWorkspacePath(text) {
+  return /\b[A-Za-z]:[\\/][^\s`]+/.test(text);
+}
+
+function primaryCheckout(root) {
+  // Linked worktrees record their owning Git directory; never guess a drive or checkout path.
+  try {
+    const pointer = fs.readFileSync(path.join(root, ".git"), "utf8").trim().match(/^gitdir: (.+)$/);
+    if (!pointer) return null;
+    const gitDir = path.resolve(root, pointer[1]);
+    const common = path.resolve(gitDir, fs.readFileSync(path.join(gitDir, "commondir"), "utf8").trim());
+    if (path.basename(common) !== ".git" || !fs.statSync(common).isDirectory()) return null;
+    return path.dirname(common);
+  } catch {
+    return null;
+  }
+}
+
 export function resolveDocumentReference({ root, docsRoot, source, raw, exists = fs.existsSync }) {
   let value = raw.trim().replace(/^`|`$/g, "");
   const link = value.match(/^\[[^\]]*\]\(([^)]+)\)$/);
@@ -30,5 +48,16 @@ export function resolveDocumentReference({ root, docsRoot, source, raw, exists =
   const localTarget = path.resolve(path.dirname(source), value);
   const workspaceTarget = path.resolve(root, ...value.split("/"));
   if (exists(workspaceTarget) && !exists(localTarget)) return workspaceTarget;
+  if (!exists(localTarget)) {
+    const relative = path.relative(root, localTarget);
+    const parts = relative.split(path.sep);
+    // Only missing sibling-project references may use the primary checkout's neighbors.
+    // Missing files inside this worktree must remain errors, even if main has them.
+    if (parts[0] === ".." && parts[1] && parts[1] !== ".." && !path.isAbsolute(relative)) {
+      const primary = primaryCheckout(root);
+      const siblingTarget = primary && path.resolve(primary, relative);
+      if (siblingTarget && exists(siblingTarget)) return siblingTarget;
+    }
+  }
   return localTarget;
 }

@@ -3,7 +3,7 @@
 Status: Active
 Scope: coder_driver-template
 Owner: 项目维护者
-Updated: 2026-08-13
+Updated: 2026-10-05
 Depends On:
 - none
 
@@ -16,11 +16,12 @@ Depends On:
 3. 改变工作空间、制品或交付环境时，读 `文档/工作流/WORKFLOW_CONTRACT.md` 并选择唯一主 Workflow；收口读 WF-0004。
 4. 创建、移动、删除或无法判断文档位置时，读 `文档/WORKSPACE_STRUCTURE.md`。
 
-事实优先级：当前用户要求 > 源码、类型、迁移与测试 > 唯一 ProductContract、CurrentDesign、Decision、Runbook > Git 与 Archive。来源冲突时停止扩张并修复唯一事实所有者。
+目标依据：当前用户要求 > 项目已确认的领域模型（如有） > ProductContract 与设计。当前实现事实以源码、类型、迁移与测试为准，不用现状改写目标。Git 与 Archive 只提供历史证据。来源冲突时停止扩张并修复对应事实所有者。
 
 ## 门禁
 
 - Codex 自动发现 `.agents/skills`；任务命中 skill 时按其方法执行，根入口不复制 skill 触发表。
+- 新建或实质改写工作空间文档的技术正文时，遵循[文档治理技能的语言约束](.agents/skills/document-governance/SKILL.md#受控技术写作约束)；既有文档仅在本次任务涉及时调整。
 - 任务类型只由用户目标决定；不得从测试规模、CI、候选、环境或 Git 状态推断 SystemTest 或 Deployment。
 - 调用代码或命令前查真实契约；公共接口、DTO、数据库、权限或跨项目变更先识别消费者，保持最小改动。
 - 设计、实现或评审任何用户界面或原型时，ProductContract、CurrentDesign 与技术边界只用于约束行为、数据和职责归属；不得仅因内部契约存在就转成用户可见的导航、标签、状态、说明或操作。每项可见内容必须由目标用户的业务事实、判断或动作独立证明；收口前逐项检查全部可见文案、状态、示例数据、抽屉和弹层，删除内部架构、实现机制、治理理由与边界解释。

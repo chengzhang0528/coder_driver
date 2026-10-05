@@ -1,6 +1,6 @@
 # Review-first technical solution template
 
-Use this outline for a requested solution document or detailed handoff. An authorized implementation may use a compact working plan; the outline is not an extra approval gate or a required file-by-file recipe.
+Use this short outline by default. Do not expand it into a file-by-file recipe unless the reviewer approves the direction or explicitly asks for a coding-ready supplement.
 
 ## 1. Direction contract
 
@@ -12,7 +12,7 @@ Use this outline for a requested solution document or detailed handoff. An autho
 - Completion rule
 - Material open decisions
 
-Reuse the established direction from the request, verified facts and any earlier alignment; load `align-solution-direction` only for a material unresolved direction choice.
+Carry these from `align-solution-direction`; do not redefine them in the solution.
 
 ## 2. Review summary
 
@@ -25,7 +25,7 @@ State the recommended decision, scope, and whether the plan is ready to code.
 
 Use only the evidence needed to support each decision. For every outcome, state whether it changes an existing frontend/client surface, adds a user entrypoint, remains internal, or is unreachable, and whether it reuses state or changes persistence. Add API, data/schema, security, operations, migration, or compatibility notes only for dimensions that the outcome actually affects; name concrete assets only when verified. Group related surfaces and actions.
 
-Resolve discoverable facts and routine implementation choices within existing authorization. Present a concrete recommendation and alternatives only for a material unresolved user decision.
+Every unresolved product rule must become two or three labelled choices, with one marked recommended. Do not leave a reviewer with an open-ended “define/confirm rule” request.
 
 ## 4. Recommended order and boundaries
 
@@ -44,7 +44,7 @@ Resolve discoverable facts and routine implementation choices within existing au
 
 # Coding-ready supplement
 
-Use the following for authorized implementation or an explicit request for implementation detail. Existing implementation authorization also covers necessary planning. Keep the substantive constraints and acceptance explicit; use only the headings needed by the task.
+Add the following only after approval or an explicit request for implementation detail. Headings may be translated or combined only when all content remains explicit.
 
 ## 1. Goal and Scope
 
@@ -91,14 +91,14 @@ Stop when a required fact conflicts or remains unverified, scope needs unauthori
 ## 7. Verification
 
 - Exact scoped build/typecheck/test commands that provide white-box completion evidence
-- Selected Development-scoped API/CLI/browser/database checks; route broad candidate testing to a separate SystemTestPlan
+- Selected Development-scoped API/CLI/browser/database checks; create a separate SystemTest task only for an explicitly requested independent test result, and a SystemTestPlan only when durable and controlled
 - Evidence or report required by current runbook
 - Risk-based regression checks
-- SystemTest, Deployment, and repository state, without using them to reverse the Development verdict
+- Repository state separately; report SystemTest or Deployment only when explicitly requested or established, without using them to reverse the Development verdict
 
 ## 8. Open Questions and Non-Goals
 
-Keep only non-blocking questions here. List non-goals explicitly; identify which work each blocking question prevents and continue independent authorized work.
+Keep only non-blocking questions here. List non-goals explicitly; move every blocking question into section 6.
 
 ## Gate
 

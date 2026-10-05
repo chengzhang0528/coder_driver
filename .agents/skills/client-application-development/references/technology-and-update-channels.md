@@ -27,7 +27,7 @@ Use the project's established builder first. Common candidates to verify against
 5. Sign/notarize where the product contract requires it. Calculate size and SHA-256 after final signing because signing changes bytes.
 6. Install the exact artifact on a clean supported environment; launch the installed binary and verify registration, shortcut, repair/repeat install, uninstall boundary, first-run bootstrap, and no transient terminal or second frontend window.
 
-On Windows, use a current-user MSI by default when the product owns no Service, driver, machine-wide shared resource, or privileged prerequisite. Escalate to machine-wide installation only for a verified platform requirement. After `InstallFinalize`, run one Launcher setup; request normal shutdown for old product processes, wait five seconds, and terminate only executables verified inside the installation root. Preserve registration, settings, and business state across repair and in-place upgrade.
+On Windows, use a current-user MSI by default when the product owns no Service, driver, machine-wide shared resource, or privileged prerequisite. Escalate to machine-wide installation only for a verified platform requirement. After `InstallFinalize`, run one Launcher setup; request normal shutdown for old product processes and follow the project-owned wait and takeover contract. Force termination requires that explicit boundary and a verified executable inside the installation root; elapsed time alone does not authorize it. Preserve registration, settings, and business state across repair and in-place upgrade.
 
 ## Publish The Configured Immutable Source
 
