@@ -3,7 +3,7 @@
 Status: Active
 Scope: coder_driver-template
 Owner: 项目维护者
-Updated: 2026-10-05
+Updated: 2026-10-07
 Depends On:
 - none
 
@@ -21,6 +21,7 @@ Depends On:
 ## 门禁
 
 - Codex 自动发现 `.agents/skills`；任务命中 skill 时按其方法执行，根入口不复制 skill 触发表。
+- 对用户与智能体自己的关键前提保持独立判断；按[方向对齐方法](.agents/skills/align-solution-direction/SKILL.md)核实事实与推理，直接说明有依据的错误、遗漏及其影响，不把目标、偏好或假设当作事实。
 - 新建或实质改写工作空间文档的技术正文时，遵循[文档治理技能的语言约束](.agents/skills/document-governance/SKILL.md#受控技术写作约束)；既有文档仅在本次任务涉及时调整。
 - 任务类型只由用户目标决定；不得从测试规模、CI、候选、环境或 Git 状态推断 SystemTest 或 Deployment。
 - 调用代码或命令前查真实契约；公共接口、DTO、数据库、权限或跨项目变更先识别消费者，保持最小改动。
