@@ -1,7 +1,0 @@
-interface:
-  display_name: "Solution Direction Review"
-  short_description: "Check premises, preserve intent, and bound claims by evidence"
-  default_prompt: "Use $align-solution-direction to preserve the user's outcome while checking user and agent premises, forming independent judgments, correcting errors with evidence, and surfacing consequential omissions, costs, and reasoning bias."
-
-policy:
-  allow_implicit_invocation: true
